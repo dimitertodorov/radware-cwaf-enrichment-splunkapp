@@ -1,0 +1,20 @@
+{
+  "id": "00upt9llgoGL8w6yd1t7",
+  "username": "api.mock.integration.splunk@example.com",
+  "tenantEntityId": "mock-c123-43fc-8e17-5bd17e5c8964",
+  "status": "ACTIVE",
+  "firstName": "api.mock.integration.splunk",
+  "lastName": "example.com",
+  "phoneNumber": null,
+  "country": null,
+  "sessionExpiration": 15,
+  "userType": "API",
+  "allowedIps": [],
+  "tenantType": "ServiceProvider",
+  "customAllowedAccountsEnabled": false,
+  "customAllowedAccounts": [],
+  "groups": [],
+  "authenticationType": "PORTAL",
+  "image": null,
+  "expirationDateWrapper": { "expirationDate": null }
+}

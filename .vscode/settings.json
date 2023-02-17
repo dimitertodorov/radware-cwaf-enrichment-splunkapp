@@ -1,0 +1,13 @@
+{
+    "python.formatting.autopep8Args": [
+        "--ignore",
+        "E402"
+    ],
+    "python.analysis.extraPaths": [
+        "C:\\dev\\Python\\Python39\\Lib\\site-packages",
+        "./splunkapp/lib",
+        "./splunkapp/bin/lib",
+        "C:\\Program Files\\Splunk\\Python-3.7\\Lib\\site-packages",
+        "D:\\splunk\\Python-3.7\\Lib\\site-packages"
+    ]
+}

@@ -1,0 +1,18 @@
+version: '2.4'
+services:
+  web:
+    hostname: 'splunkdev001'
+    image: 'splunk/splunk:9.0.3'
+    ports:
+      - "9000:8000"
+      - "19088:8088"
+      - "19089:8089"
+    volumes:
+      - ../splunkapp:/opt/splunk/etc/apps/radware_cwaf_enrichment
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_ENABLE_LISTEN=9997
+      - SPLUNK_PASSWORD=newPassword
+      - SPLUNK_ADD=tcp 1514
+      - SPLUNK_HOME=/opt/splunk
+      - SPLUNK_ETC=/opt/splunk/etc

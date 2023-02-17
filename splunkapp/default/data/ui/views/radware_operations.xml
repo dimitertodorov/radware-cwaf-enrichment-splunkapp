@@ -1,0 +1,46 @@
+<form version="1.1">
+    <label>Radware Operations (Remote)</label>
+    <fieldset submitButton="true">
+        <input type="dropdown" token="object_type">
+            <label>Object Type</label>
+            <fieldForLabel>label</fieldForLabel>
+            <fieldForValue>label</fieldForValue>
+            <search>
+                <query>| rest /services/properties/radware_cwaf_enrichment/settings/object_list
+                    | eval label=split(value,",") | table label | mvexpand label</query>
+                <earliest>0</earliest>
+                <latest></latest>
+            </search>
+            <default>applications</default>
+        </input>
+        <input type="radio" token="action">
+            <label>Action</label>
+            <choice value="listremote">List Remote</choice>
+            <choice value="importremote">Import</choice>
+            <default>List Remote</default>
+        </input>
+    </fieldset>
+    <row>
+        <panel>
+            <table>
+                <search>
+                    <query>
+                        <![CDATA[
+| radwarecwaf$action$ object_type="$object_type$"
+]]>
+                    </query>
+                    <earliest>-24h@h</earliest>
+                    <latest>now</latest>
+                    <sampleRatio>1</sampleRatio>
+                </search>
+                <option name="count">50</option>
+                <option name="dataOverlayMode">none</option>
+                <option name="drilldown">none</option>
+                <option name="percentagesRow">false</option>
+                <option name="rowNumbers">false</option>
+                <option name="totalsRow">true</option>
+                <option name="wrap">true</option>
+            </table>
+        </panel>
+    </row>
+</form>

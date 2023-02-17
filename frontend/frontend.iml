@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/packages" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/radware-enrichment-components/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/packages/radware-enrichment-ui/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/node_modules" />
+      <excludePattern pattern="RadwareEnrichmentSetupComponent.js" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="@types/jest" level="application" />
+    <orderEntry type="library" name="node_modules" level="project" />
+    <orderEntry type="library" name="@types/react" level="application" />
+    <orderEntry type="library" name="@types/shelljs" level="application" />
+  </component>
+</module>
