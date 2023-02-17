@@ -68,13 +68,10 @@ class RadwareCommonCommand(GeneratingCommand):
             print("Could not read configuration: " + repr(e))
 
         # Facility info - prepended to log lines
-        facility = os.path.basename(__file__)
-        facility = os.path.splitext(facility)[0]
-
-        self.app_logger = rwc.setup_logger(facility)
-
+        command_name = self.__class__.__name__
+        self.app_logger = rwc.setup_logger(command_name)
         self.app_logger.info('Command %s started by %s' %
-                             (__class__.__qualname__, self._metadata.searchinfo.username))
+                             (command_name, self._metadata.searchinfo.username))
 
         self.local_session_key = self._metadata.searchinfo.session_key
         self.splunkd_uri = self._metadata.searchinfo.splunkd_uri
@@ -117,7 +114,7 @@ class RadwareCommonCommand(GeneratingCommand):
         object_dict = {}
         # Get apps from the API
         for k in credentials.keys():
-            self.app_logger.debug(credentials[k])
+            self.app_logger.debug(f"Loading {self.object_type} for tenant {credentials[k]['tenant_id']}")
             svc = rwc.get_radware_service(credentials[k], self.cfg)
             svc.login()
             object_functions = {
