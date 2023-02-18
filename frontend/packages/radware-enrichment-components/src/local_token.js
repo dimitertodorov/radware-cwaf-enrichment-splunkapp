@@ -1,0 +1,7 @@
+let localDevToken = {
+  "splunkWebUrl": "http://localhost:8000",
+  "splunkdHostUrl": "https://localhost:19089",
+  "adminToken": "eyJraWQiOiJzcGx1bmsuc2VjcmV0IiwiYWxnIjoiSFM1MTIiLCJ2ZXIiOiJ2MiIsInR0eXAiOiJzdGF0aWMifQ.eyJpc3MiOiJhZG1pbiBmcm9tIHNwbHVua2RldjAwMSIsInN1YiI6ImFkbWluIiwiYXVkIjoic3BsdW5rdGVzdCIsImlkcCI6IlNwbHVuayIsImp0aSI6IjMwMGNmZmRhNWEyMzU3ZDBkYTkwNGViMDBiODViNmJiMWRmNTNkNDIxNjhiZjYwOTAzYTJiNDQ3MTc2NDMxZDkiLCJpYXQiOjE2NzY2NzA4NTUsImV4cCI6MTY4MTg1NDg1NSwibmJyIjoxNjc2NjcwODU1fQ.JYSoJu1D437N7XRkPptWX7urJnezqzjYefCsbCR4URrKUtRRDNo0uitv3OncpJegBbHHKa4qhTFOzAe1TxUTsg"
+}
+
+export default localDevToken

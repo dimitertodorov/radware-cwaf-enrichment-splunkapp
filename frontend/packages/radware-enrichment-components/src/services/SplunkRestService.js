@@ -17,13 +17,12 @@ class SplunkRestService {
                 }) {
         this.runningInSplunk = runningInSplunk
         this._fetchFn = window.fetch.bind(window)
-        this.localSplunkHost = localSplunkHost
         this.settingsEndpoint = settingsEndpoint
         this.propertiesEndpoint = propertiesEndpoint
-        this.splunkAuthToken = jwtToken
-        this.settingsUrl = this.getRelativeUrl(this.settingsEndpoint)
-        this.propertiesUrl = this.getRelativeUrl(this.propertiesEndpoint)
-
+        if(!runningInSplunk){
+            this.localSplunkHost = window.$DEVC.splunkdHostUrl
+            this.splunkAuthToken = window.$DEVC.adminToken
+        }
     }
 
     getRelativeUrl = (url) => {

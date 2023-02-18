@@ -113,7 +113,7 @@ Describe 'SplunkApp - PowerShell Tests' {
         }
     }
 
-    Describe 'ConfigEndpoint' -Skip {
+    Describe 'ConfigEndpoint' {
         BeforeAll {
             Ensure-NormalUser
             Refresh-SplunkApp

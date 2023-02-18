@@ -2,21 +2,28 @@ param(
     $SplunkAPIHost = "https://localhost:8089",
     $SplunkURL = "http://localhost:8000",
     $SplunkUser = "admin",
+    $SplunkNormalUser = "raduser1",
+    $SplunkAppName = "radware_cwaf_enrichment",
     $SplunkContainerName = "splunkdev-web-1",
     $SplunkClearPassword = "newPassword",
     $MaxWaitSeconds = 60,
-    $SplunkNormalUser = "raduser1",
-    $LogPath = "$( $env:SPLUNK_HOME )\\var\\log\\splunk\\radware_cwaf_enrichment.log",
-    $BuildRoot
+    $BuildRoot = $BuildRoot,
+    ## Docker Variables
+    $DockerSplunkImage = "splunk/splunk:9.0.3",
+    $DockerSplunkHostname = "splunkdev001",
+    $DockerSplunkWebPort = "9000",
+    $DockerSplunkAPIPort = "19089",
+    $DockerSplunkHECPort = "19088"
 )
+. (Resolve-Path "$( $BuildRoot )/build/SplunkHelpers.build.ps1")
 
 task UpdateApp SetupVariables, {
-    $destinationPath = "$( $env:SPLUNK_HOME )/etc/apps/radware_cwaf_enrichment"
+    $destinationPath = "$( $env:SPLUNK_HOME )/etc/apps/$( SplunkAppName )"
     if (-Not(Test-Path $destinationPath))
     {
         New-Item -Path $destinationPath -ItemType SymbolicLink -Value $SplunkAppPath
     }
-    $refreshUri = "$SplunkAPIHost/services/apps/local/radware_cwaf_enrichment?refresh=true"
+    $refreshUri = "$SplunkAPIHost/services/apps/local/$( $SplunkAppName )?refresh=true"
     Invoke-RestMethod -Uri $refreshUri -Method GET -Credential $Script:SplunkCreds -SkipCertificateCheck
 }
 
@@ -92,81 +99,11 @@ task EnsureRegularUser SetupVariables, {
 task BuildFrontend SetupVariables, {
     $frontendBuildPath = "$( $BuildRoot )/frontend"
     Set-Location $frontendBuildPath
-    exec { yarn build }
-}
-
-## Docker Tasks
-task StartDockerContainer SetupVariables, {
-    # Cleanup any local files before pushing to docker
-    if (Test-Path "$( $BuildRoot )/splunkapp/local/")
-    {
-        Remove-Item "$( $BuildRoot )/splunkapp/local/*.conf" -Force
+    exec {
+        yarn install
     }
-    if (Test-Path "$( $BuildRoot )/splunkapp/metadata/local.meta")
-    {
-        Remove-Item "$( $BuildRoot )/splunkapp/metadata/local.meta" -Force
+    exec {
+        yarn build
     }
-    $SplunkContainerStatus = (docker ps --filter "name=$SplunkContainerName" --format "{{.Status}}")
-    if ( [string]::IsNullOrEmpty($SplunkContainerStatus))
-    {
-        exec { docker-compose -f "$( $BuildRoot )/build/docker-compose-dev.yml" -p "splunkdev" up -d }
-    }
-    else
-    {
-        Write-Host "Docker container already exists - status $SplunkContainerStatus"
-    }
-}
-
-task AssertDockerContainersExist {
-    $SplunkContainerStatus = (docker ps --filter "name=$SplunkContainerName" --format "{{.Status}}")
-    assert ( -not [string]::IsNullOrEmpty($SplunkContainerStatus))
-}
-
-task CheckDockerSplunkHealth AssertDockerContainersExist, {
-    $LoopCounter = 0
-    $ContainerHealth = "starting"
-    While (($LoopCounter -lt $MaxWaitSeconds) -and ($ContainerHealth -ilike "*starting*"))
-    {
-        $ContainerHealth = docker ps --filter "name=$( $SplunkContainerName )" --format "{{.Status}}"
-        $LoopCounter += 1
-        $ProgressParameters = @{
-            Activity = 'Waiting for Splunk to be Available'
-            Status = "Progress-> $ContainerHealth"
-            PercentComplete = ($LoopCounter / $MaxWaitSeconds * 100)
-        }
-        Write-Progress @ProgressParameters
-        Start-Sleep -Seconds 1
-    }
-    assert { (docker ps --filter "name=$( $SplunkContainerName )" --format "{{.Status}}") -ne "" }
-}
-
-task DockerPester SetupVariables, {
-    $dockerTestParams = @{
-        SplunkAPIHost = "https://localhost:19089"
-        SplunkURL = "http://localhost:9000"
-    }
-    $pesterContainer = New-PesterContainer -Path "$( $BuildRoot )/test/*.tests.ps1" -Data $dockerTestParams
-    $PesterConfig.Run.Container = $pesterContainer
-    Invoke-Pester -Container $pesterContainer -Output Detailed
-}
-
-task TestInDocker StartDockerContainer, CheckDockerSplunkHealth, DockerPester, {
-    Write-Host "TestInDocker Complete"
-}
-
-task PackageDownloadApp SetupVariables, {
-    $RequestSplat = @{
-        Method = "GET"
-        Uri = "https://localhost:19089/services/apps/local/radware_cwaf_enrichment/package"
-        SkipCertificateCheck = $true
-        Credential = $SplunkCreds
-    }
-    Invoke-RestMethod @RequestSplat
-
-}
-
-task StopDockerContainer {
-    exec { docker-compose -f "$( $BuildRoot )/build/docker-compose-dev.yml" -p "splunkdev" down }
-    exec { docker-compose -f "$( $BuildRoot )/build/docker-compose-dev.yml" -p "splunkdev" rm }
 }
 
