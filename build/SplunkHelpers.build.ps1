@@ -1,4 +1,4 @@
-task ResolveDockerSplunkVariables SetupVariables, {
+task UseDocker SetupVariables, {
     $Script:SplunkAPIHost = "https://localhost:$($DockerSplunkAPIPort)"
     $Script:SplunkURL = "http://localhost:8000"
     $Script:RequestSplat = @{
@@ -14,7 +14,7 @@ task CopyWebConfig ResolveDockerSplunkVariables, {
     exec { docker exec -it splunkdev-web-1 sudo bash -c "echo 'crossOriginSharingPolicy = *' >> /opt/splunk/etc/system/local/server.conf"}
 }
 
-task CheckSplunkHealth ResolveDockerSplunkVariables, {
+task CheckSplunkHealth SetupVariables, {
     $RequestSplat = @{
         Method = "GET"
         Uri = "$( $SplunkAPIHost )/services/server/info?output_mode=json"
@@ -33,8 +33,6 @@ task SetupAuthToken CheckSplunkHealth, {
         Credential = $SplunkCreds
     }
     Invoke-RestMethod @RequestSplat
-    
-    
     $RequestSplat.Body = @{
         name="admin"
         audience="splunktest"
@@ -45,13 +43,13 @@ task SetupAuthToken CheckSplunkHealth, {
     $RequestSplat.Uri = "$( $SplunkAPIHost )/services/authorization/tokens"
     $TokenResult = Invoke-RestMethod @RequestSplat
     $JWTToken = $TokenResult.entry[0].content.token
-    $TokenPath = "$($FrontendPath)/packages/radware-enrichment-components/src/local_token.js"
+    $TokenPath = "$($FrontendPath)/packages/radware-enrichment-components/demo/standalone/local_setup.js"
     $TokenContent = @{
         splunkdHostUrl = $SplunkAPIHost
         splunkWebUrl = $SplunkURL
         adminToken = $JWTToken
     }
-    "let localDevToken = " + ($TokenContent | ConvertTo-Json ) | Out-File $TokenPath -Force
+    "window.`$DEVC = " + ($TokenContent | ConvertTo-Json ) | Out-File $TokenPath -Force
 }
 
 ## Docker Tasks

@@ -1,5 +1,5 @@
 window.$DEVC = {
-    "splunkWebUrl": "http://localhost:8000",
-    "splunkdHostUrl": "https://localhost:19089",
-    "adminToken": ""
+  "splunkWebUrl": "http://localhost:8000",
+  "splunkdHostUrl": "https://localhost:8089",
+  "adminToken": "eyJraWQiOiJzcGx1bmsuc2VjcmV0IiwiYWxnIjoiSFM1MTIiLCJ2ZXIiOiJ2MiIsInR0eXAiOiJzdGF0aWMifQ.eyJpc3MiOiJhZG1pbiBmcm9tIE9OMzRDMDMyNTM3NDciLCJzdWIiOiJhZG1pbiIsImF1ZCI6InNwbHVua3Rlc3QiLCJpZHAiOiJTcGx1bmsiLCJqdGkiOiJhZTUwYjI1M2FmMWM4ZDg5NjA4ZjM0YjFkNzE0Y2EyOGZmYzdiNTExNjU4N2E4Mzc5M2QwZWE0NzQzYTBjMzMwIiwiaWF0IjoxNjc2NjgwODY2LCJleHAiOjE2ODE4NjEyNjYsIm5iciI6MTY3NjY4MDg2Nn0.pQQ7rL_RZRvpC4GaVIph_j7rBvul6IWPnDWtKZmyHYmknAgfVLWeByLpJF3BC8FtkofLCUUjbBWSvhALGf4fiA"
 }

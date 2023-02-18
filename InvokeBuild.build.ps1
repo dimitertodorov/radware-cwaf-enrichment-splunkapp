@@ -15,10 +15,8 @@ param(
     $DockerSplunkAPIPort = "19089",
     $DockerSplunkHECPort = "19088"
 )
-. (Resolve-Path "$( $BuildRoot )/build/SplunkHelpers.build.ps1")
-
 task UpdateApp SetupVariables, {
-    $destinationPath = "$( $env:SPLUNK_HOME )/etc/apps/$( SplunkAppName )"
+    $destinationPath = "$( $env:SPLUNK_HOME )/etc/apps/$( $SplunkAppName )"
     if (-Not(Test-Path $destinationPath))
     {
         New-Item -Path $destinationPath -ItemType SymbolicLink -Value $SplunkAppPath
@@ -106,4 +104,8 @@ task BuildFrontend SetupVariables, {
         yarn build
     }
 }
+
+
+. (Resolve-Path "$( $BuildRoot )/build/SplunkHelpers.build.ps1")
+
 

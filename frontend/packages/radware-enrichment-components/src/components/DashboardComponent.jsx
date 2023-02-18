@@ -11,7 +11,7 @@ const DashboardComponent = (props) => {
     const [searchComplete, setSearchComplete] = useState(false)
     const [searchRunning, setSearchRunning] = useState(false)
     const logSearchQuery = {
-        search: 'index="_internal" source="*/var/log/splunk/radware_cwaf_enrichment.log" OR source="*\\\\var\\\\log\\\\splunk\\\\radware_cwaf_enrichment.log" | rex "(?<LogDate>.*)\\s(?<LogLevel>(DEBUG|INFO|WARNING|ERROR|CRITICAL))\\s(?<Facility>[a-zA-Z_]+)\\s-\\s(?<Message>.*$)" | search LogLevel=* | eval _timestamp=strptime(LogDate, "%Y-%m-%d %T,%3N") | sort _timestamp desc | table LogDate LogLevel Facility Message',
+        search: 'index="_internal" source="*/var/log/splunk/radware_cwaf_enrichment.log" OR source="*\\\\var\\\\log\\\\splunk\\\\radware_cwaf_enrichment.log" | rex "(?<LogDate>.*)\\s(?<LogLevel>(DEBUG|INFO|WARNING|ERROR|CRITICAL))\\s(?<Facility>[a-zA-Z_]+)\\s-\\s(?<Message>.*$)" | search LogLevel=* | sort _time desc | table _time LogLevel Facility Message ',
         earliest_time: '-2d',
         latest_time: 'now'
     }
