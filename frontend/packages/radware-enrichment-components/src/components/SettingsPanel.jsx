@@ -5,9 +5,8 @@ import Select from '@splunk/react-ui/Select'
 import ControlGroup from '@splunk/react-ui/ControlGroup'
 import Switch from "@splunk/react-ui/Switch"
 import CredentialComponent from "./CredentialComponent"
-import {StyledCard} from "./RadwareEnrichmentSetupComponentStyles"
+import {StyledCard} from "./ComponentStyles"
 import Card from "@splunk/react-ui/Card"
-import ToastMessages from "@splunk/react-toast-notifications/ToastMessages"
 import {TOAST_TYPES} from "@splunk/react-toast-notifications/ToastConstants"
 import ProgressBarComponent from "./ProgressBarComponent"
 import WaitSpinner from "@splunk/react-ui/WaitSpinner"
@@ -17,7 +16,7 @@ import {RadwareEnrichmentContext} from "../RadwareEnrichmentContext"
 
 const isEqual = require('lodash/isEqual')
 
-const RadwareEnrichmentSetupComponent = ({
+const SettingsPanel = ({
                                              renderVersion,
                                              debugMode = false
                                          }) => {
@@ -185,7 +184,7 @@ const RadwareEnrichmentSetupComponent = ({
         <ColumnLayout>
             <ColumnLayout.Row alignItems={'stretch'}>
                 <ColumnLayout.Column span={6}>
-                    <ToastMessages/>
+
                     <StyledCard>
                         <Card className={'setup-card'}>
                             <Card.Header title={'Radware CWAF Enrichment Setup Page'}/>
@@ -211,4 +210,4 @@ const RadwareEnrichmentSetupComponent = ({
         </ColumnLayout>)
 }
 
-export default RadwareEnrichmentSetupComponent
+export default SettingsPanel

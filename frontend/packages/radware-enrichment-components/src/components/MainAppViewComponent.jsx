@@ -1,21 +1,21 @@
 import React, {useEffect, useState} from 'react'
 import TabLayout from '@splunk/react-ui/TabLayout'
-import DocumentationComponent from './DocumentationComponent'
-import RadwareEnrichmentSetupComponent from './RadwareEnrichmentSetupComponent'
+import DocumentationPanel from './DocumentationPanel'
+import SettingsPanel from './SettingsPanel'
 import Settings from '@splunk/react-icons/Settings'
 import Info from '@splunk/react-icons/Info'
 import Question from "@splunk/react-icons/Question"
 import Data from "@splunk/react-icons/Data"
 import Monitor from "@splunk/react-icons/Monitor"
 import AboutPanel from "./AboutPanel"
-import ManageObjectsComponent from "./ManageObjectsComponent"
+import ManageObjectsPanel from "./ManageObjectsPanel"
 import {RadwareEnrichmentContext} from "../RadwareEnrichmentContext"
 import Toaster, {makeCreateToast} from "@splunk/react-toast-notifications/Toaster"
+import ToastMessages from "@splunk/react-toast-notifications/ToastMessages"
 import {TOAST_TYPES} from "@splunk/react-toast-notifications/ToastConstants"
 import SearchJob from "@splunk/search-job"
-import {getStaticConfig} from "../services/SplunkWebConfig"
-import DashboardComponent from "./DashboardComponent"
-import { get as _get } from 'lodash'
+import {getStaticConfig} from "../utils/splunk_web_utils"
+import LogsPanel from "./LogsPanel"
 import { set as _set } from 'lodash'
 
 function MainAppViewComponent({
@@ -51,7 +51,7 @@ function MainAppViewComponent({
             })
         } else {
             createToast({
-                type: TOAST_TYPES.ERROR, title: title, message: JSON.stringify(error, null, 2), autoDismiss: false,
+                type: TOAST_TYPES.ERROR, title: title, message: error.message, autoDismiss: false,
             })
         }
     }
@@ -70,6 +70,7 @@ function MainAppViewComponent({
 
     return (<RadwareEnrichmentContext.Provider
         value={{handleError: handleError, configService: configService, createToast: createToast}}>
+        <ToastMessages/>
         <TabLayout activePanelId={activePanelId}
                    onChange={handleChange}
                    iconSize="small">
@@ -77,21 +78,21 @@ function MainAppViewComponent({
                              panelId="info"
                              icon={<Info screenReaderText={null}/>}>
                 <div>
-                    <DocumentationComponent readmePath={readmePath}/>
+                    <DocumentationPanel readmePath={readmePath}/>
                 </div>
             </TabLayout.Panel>
             <TabLayout.Panel label="Setup"
                              panelId="setup"
                              icon={<Settings screenReaderText={null}/>}>
-                <RadwareEnrichmentSetupComponent renderVersion={renderVersion}/>
+                <SettingsPanel renderVersion={renderVersion}/>
             </TabLayout.Panel>
             <TabLayout.Panel panelId={'manage'}
                              label={'Manage Objects'}
                              icon={<Data screenReaderText={null}/>}>
-                <ManageObjectsComponent/>
+                <ManageObjectsPanel/>
             </TabLayout.Panel>
             <TabLayout.Panel panelId={'logs'} label={'Logs'} icon={<Monitor screenReaderText={null}/>}>
-                <DashboardComponent/>
+                <LogsPanel/>
             </TabLayout.Panel>
             <TabLayout.Panel panelId={'about'} label={'About'} icon={<Question screenReaderText={null}/>}>
                 <AboutPanel/>

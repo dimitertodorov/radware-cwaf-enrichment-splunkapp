@@ -1,6 +1,6 @@
 task UseDocker SetupVariables, {
     $Script:SplunkAPIHost = "https://localhost:$($DockerSplunkAPIPort)"
-    $Script:SplunkURL = "http://localhost:8000"
+    $Script:SplunkURL = "http://localhost:$($DockerSplunkWebPort)"
     $Script:RequestSplat = @{
         Method = "GET"
         Uri = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkUser )"

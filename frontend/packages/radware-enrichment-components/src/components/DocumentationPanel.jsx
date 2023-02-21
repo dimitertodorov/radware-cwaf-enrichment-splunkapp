@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import Markdown from '@splunk/react-ui/Markdown'
 
-const DocumentationComponent = ({readmePath = '/static/app/radware_cwaf_enrichment/README.md'}) => {
+const DocumentationPanel = ({readmePath = '/static/app/radware_cwaf_enrichment/README.md'}) => {
     const [markdownContent, setMarkdownContent] = useState('### Loading...')
     useEffect(() => {
         fetch(readmePath)
@@ -13,4 +13,4 @@ const DocumentationComponent = ({readmePath = '/static/app/radware_cwaf_enrichme
     )
 }
 
-export default DocumentationComponent
+export default DocumentationPanel

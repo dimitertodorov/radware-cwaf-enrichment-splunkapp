@@ -215,6 +215,10 @@ class MockConfigService {
         })
     }
 
+    getFetchConfig = () => {
+        return {}
+    }
+
     updateSettings = async (settings) => {
         const config = parseConfig(this.config)
         config.settings = {...config.settings, ...settings}

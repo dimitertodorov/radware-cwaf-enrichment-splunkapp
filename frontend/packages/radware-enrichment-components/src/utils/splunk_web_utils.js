@@ -1,3 +1,5 @@
+import {getStickyValue} from "./ReactHelpers"
+
 const staticConfig = {
     "CSRFToken": "4588212691124109229",
     "isAvailable": true,
@@ -74,7 +76,27 @@ const staticConfig = {
 }
 
 const getStaticConfig = () => {
-    return {...staticConfig, rootPath: $DEVC.splunkdHostUrl, splunkdPath: $DEVC.splunkdHostUrl}
+    let splunkdHostUrl = getStickyValue('splunkdHostUrl')
+    let splunkWebUrl = getStickyValue('splunkWebUrl')
+    return {...staticConfig, rootPath: splunkWebUrl.value, splunkdPath: splunkdHostUrl.value}
 }
 
-export {getStaticConfig}
+const encodeGetParams = p => Object.entries(p).map(kv => kv.map(encodeURIComponent).join("=")).join("&")
+
+const getSearchUrl = (search) => {
+    let searchParams = {
+        'display.page.search.mode': 'smart', 'dispatch.sample_ratio': 1, 'display.page.search.tab': 'statistics'
+    }
+    searchParams['q'] = search.search
+    if (search.earliest_time) {
+        searchParams['earliest'] = search.earliest_time
+    }
+    if (search.latest_time) {
+        searchParams['latest'] = search.latest_time
+    }
+    let relativeSearchUrl = `app/search/search?` + encodeGetParams(searchParams)
+    let splunkWebUrl = getStickyValue('splunkWebUrl', '')
+    return `${splunkWebUrl.value}/en-US/${relativeSearchUrl}`
+}
+
+export {getStaticConfig, getSearchUrl}

@@ -1,5 +1,5 @@
 import ColumnLayout from "@splunk/react-ui/ColumnLayout"
-import {StyledCard} from "./RadwareEnrichmentSetupComponentStyles"
+import {StyledCard} from "./ComponentStyles"
 import Card from "@splunk/react-ui/Card"
 import React, {useContext, useState} from "react"
 import {RadwareEnrichmentContext} from "../RadwareEnrichmentContext"
@@ -9,7 +9,7 @@ import SearchResultTableComponent from "./SearchResultTableComponent"
 
 const {Sema} = require('async-sema')
 
-const ManageObjectsComponent = () => {
+const ManageObjectsPanel = () => {
     const {handleError, configService} = useContext(RadwareEnrichmentContext)
     const lookupQuery = '| inputlookup radware_cwaf_applications_lookup | table id,workflowName,monitoringStatus,_key'
 
@@ -84,16 +84,10 @@ const ManageObjectsComponent = () => {
                                                             resultsCallback={updateSearchResultsCallback(activeSearch)}/> : null}
                         </Card.Body>
                     </Card>
-                    <Card className={'setup-card'}>
-                        <Card.Header title={'App Collections'} align={'right'}/>
-                        <Card.Body>
-                            <pre>{JSON.stringify(searchResults[activeSearch], null, 2)}</pre>
-                        </Card.Body>
-                    </Card>
                 </StyledCard>
             </ColumnLayout.Column>
         </ColumnLayout.Row>
     </ColumnLayout>)
 }
 
-export default ManageObjectsComponent
+export default ManageObjectsPanel

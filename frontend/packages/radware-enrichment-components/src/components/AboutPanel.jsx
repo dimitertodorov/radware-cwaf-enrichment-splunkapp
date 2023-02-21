@@ -1,5 +1,5 @@
 import ColumnLayout from "@splunk/react-ui/ColumnLayout"
-import {StyledCard} from "./RadwareEnrichmentSetupComponentStyles"
+import {StyledCard} from "./ComponentStyles"
 import Card from "@splunk/react-ui/Card"
 import DL from "@splunk/react-ui/DefinitionList"
 import React from "react"

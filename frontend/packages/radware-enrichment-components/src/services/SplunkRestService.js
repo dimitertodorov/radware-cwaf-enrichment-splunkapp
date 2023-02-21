@@ -1,7 +1,8 @@
 import {convertCredentials, parseConfig} from "./AppConfigHelper"
 import * as config from "@splunk/splunk-utils/config"
 import {defaultFetchInit, handleResponse} from '@splunk/splunk-utils/fetch'
-import {getStaticConfig} from "./SplunkWebConfig"
+import {getStaticConfig} from "../utils/splunk_web_utils"
+import {getStickyValue} from "../utils/ReactHelpers";
 
 // This service handles all interaction with the Splunk REST API
 // It is used by the AppConfigService to get and update the app's configuration, and perform any other REST API calls.
@@ -20,8 +21,10 @@ class SplunkRestService {
         this.settingsEndpoint = settingsEndpoint
         this.propertiesEndpoint = propertiesEndpoint
         if(!runningInSplunk){
-            this.localSplunkHost = window.$DEVC.splunkdHostUrl
-            this.splunkAuthToken = window.$DEVC.adminToken
+            let splunkdHostUrl = getStickyValue('splunkdHostUrl')
+            let adminToken = getStickyValue('adminToken')
+            this.localSplunkHost = splunkdHostUrl.value
+            this.splunkAuthToken = adminToken.value
         }
     }
 

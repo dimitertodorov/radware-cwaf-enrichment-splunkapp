@@ -1,9 +1,15 @@
-import React, {useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import Paginator from "@splunk/react-ui/Paginator"
 import Table from "@splunk/react-ui/Table"
 import SearchJob from "@splunk/search-job"
 import WaitSpinner from "@splunk/react-ui/WaitSpinner"
 import isEqual from "lodash/isEqual"
+import {StyledCard} from "./ComponentStyles"
+import Card from "@splunk/react-ui/Card"
+import Search from "@splunk/react-icons/Search"
+import Link from "@splunk/react-ui/Link"
+import {getSearchUrl} from "../utils/splunk_web_utils"
+import {RadwareEnrichmentContext} from "../RadwareEnrichmentContext";
 
 const SearchResultTableComponent = ({
                                         pageSize = 25,
@@ -16,7 +22,10 @@ const SearchResultTableComponent = ({
     const [tableData, setTableData] = useState(undefined)
     const [loading, setLoading] = useState(false)
     const [lastSearchTime, setLastSearchTime] = useState(searchTime)
-    let lookupJob;
+
+    const {handleError, configService} = useContext(RadwareEnrichmentContext)
+
+    let lookupJob
 
     useEffect(() => {
         let freshSearch
@@ -27,11 +36,17 @@ const SearchResultTableComponent = ({
             freshSearch = true
             setTableData(undefined)
             setLastSearchTime(searchTime)
-        }else freshSearch = !!(searchQuery && !tableData)
+        } else freshSearch = !!(searchQuery && !tableData)
 
         if (searchQuery && freshSearch) {
             setLoading(true)
+
             lookupJob = SearchJob.create(searchQuery, {cache: false, keepAlive: false})
+            lookupJob.getProgress().subscribe({
+                error: err => {
+                    handleError(err, 'Error Executing Search')
+                }
+            })
             lookupJob.getResults().subscribe((results) => {
                 setTableData({...results, searchQuery: {...searchQuery}})
                 setLoading(false)
@@ -88,14 +103,10 @@ const SearchResultTableComponent = ({
 
     const getSearchMessage = () => {
         if (loading) {
-            return (
-                <div><WaitSpinner size={'medium'}/> Loading... {JSON.stringify(searchQuery)}</div>
-            )
+            return (<div><WaitSpinner size={'medium'}/> Loading... {JSON.stringify(searchQuery)}</div>)
         }
         if (!tableData) {
-            return (
-                <div>No Results </div>
-            )
+            return (<div>No Results </div>)
         }
         if (tableData.messages && tableData.messages.length > 0) {
             return tableData.messages.map((message, idx) => {
@@ -104,26 +115,32 @@ const SearchResultTableComponent = ({
         }
     }
 
-    return (<div>
-        {(tableData && tableData.fields) ?
-            <div><Table stripeRows={true}>
-                <Table.Head>
-                    {tableData.fields.map((row) => (
-                        <Table.HeadCell key={`header-${row.name}`}>{row.name}</Table.HeadCell>))}
-                </Table.Head>
-                <Table.Body>
-                    {getTableRows()}
-                </Table.Body>
-            </Table>
-                <Paginator
-                    onChange={handleChange}
-                    current={pageNum}
-                    alwaysShowLastPageLink
-                    totalPages={getTotalPages()}
-                /></div>
-            : null}
-        <div>{getSearchMessage()}</div>
-    </div>)
+    return (<StyledCard>
+        <Card className={'setup-card'}>
+            <Card.Header title={'Search Results'} align={'right'}>
+                <Link to={getSearchUrl(searchQuery)} openInNewContext>
+                    Search in Splunk <Search screenReaderText="Search in Splunk"/>
+                </Link>
+            </Card.Header>
+            <Card.Body>
+                {(tableData && tableData.fields) ? <div><Table stripeRows={true}>
+                    <Table.Head>
+                        {tableData.fields.map((row) => (
+                            <Table.HeadCell key={`header-${row.name}`}>{row.name}</Table.HeadCell>))}
+                    </Table.Head>
+                    <Table.Body>
+                        {getTableRows()}
+                    </Table.Body>
+                </Table>
+                    <Paginator
+                        onChange={handleChange}
+                        current={pageNum}
+                        alwaysShowLastPageLink
+                        totalPages={getTotalPages()}
+                    /></div> : null}
+                <div>{getSearchMessage()}</div>
+            </Card.Body></Card>
+    </StyledCard>)
 }
 
 export default SearchResultTableComponent
