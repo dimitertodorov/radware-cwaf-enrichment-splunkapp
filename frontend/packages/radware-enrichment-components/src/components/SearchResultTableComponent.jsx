@@ -16,6 +16,7 @@ const SearchResultTableComponent = ({
     const [tableData, setTableData] = useState(undefined)
     const [loading, setLoading] = useState(false)
     const [lastSearchTime, setLastSearchTime] = useState(searchTime)
+    let lookupJob;
 
     useEffect(() => {
         let freshSearch
@@ -30,7 +31,7 @@ const SearchResultTableComponent = ({
 
         if (searchQuery && freshSearch) {
             setLoading(true)
-            const lookupJob = SearchJob.create(searchQuery, {cache: false, keepAlive: false})
+            lookupJob = SearchJob.create(searchQuery, {cache: false, keepAlive: false})
             lookupJob.getResults().subscribe((results) => {
                 setTableData({...results, searchQuery: {...searchQuery}})
                 setLoading(false)
@@ -40,6 +41,14 @@ const SearchResultTableComponent = ({
             })
         }
     }, [searchQuery, searchTime])
+
+    useEffect(() => {
+        return () => {
+            if (lookupJob) {
+                lookupJob.cancel()
+            }
+        }
+    }, [])
 
 
     const handleChange = (event, {page}) => {

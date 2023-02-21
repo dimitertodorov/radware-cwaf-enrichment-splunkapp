@@ -61,7 +61,6 @@ function MainAppViewComponent({
     }, [configService, renderVersion])
 
     if (!runningInSplunk) {
-        console.log("Running isn Splunk: ", runningInSplunk)
         var root = typeof window === 'undefined' ? global : window;
         _set([root, '$C'], staticConfig.config)
         SearchJob.setSplunkConfig(staticConfig)

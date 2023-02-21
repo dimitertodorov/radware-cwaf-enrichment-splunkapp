@@ -9,7 +9,7 @@ task UseDocker SetupVariables, {
     }
 }
 
-task CopyWebConfig ResolveDockerSplunkVariables, {
+task CopyWebConfig UseDocker, {
     exec { docker exec -it splunkdev-web-1 sudo bash -c "echo '[httpServer]' >> /opt/splunk/etc/system/local/server.conf"}
     exec { docker exec -it splunkdev-web-1 sudo bash -c "echo 'crossOriginSharingPolicy = *' >> /opt/splunk/etc/system/local/server.conf"}
 }
@@ -82,7 +82,7 @@ task AssertDockerContainersExist {
     assert ( -not [string]::IsNullOrEmpty($SplunkContainerStatus))
 }
 
-task CheckDockerSplunkHealth AssertDockerContainersExist, {
+task CheckSplunkDockerHealth AssertDockerContainersExist, {
     $LoopCounter = 0
     $ContainerHealth = "starting"
     While (($LoopCounter -lt $MaxWaitSeconds) -and ($ContainerHealth -ilike "*starting*"))
@@ -110,7 +110,7 @@ task DockerPester SetupVariables, {
     Invoke-Pester -Container $pesterContainer -Output Detailed
 }
 
-task TestInDocker StartDockerContainer, CheckDockerSplunkHealth, DockerPester, {
+task TestInDocker StartDockerContainer, CheckSplunkHealth, DockerPester, {
     Write-Host "TestInDocker Complete"
 }
 
