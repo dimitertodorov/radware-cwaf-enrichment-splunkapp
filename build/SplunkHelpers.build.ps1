@@ -1,6 +1,6 @@
-task UseDocker SetupVariables, {
-    $Script:SplunkAPIHost = "https://localhost:$($DockerSplunkAPIPort)"
-    $Script:SplunkURL = "http://localhost:$($DockerSplunkWebPort)"
+task SetupDockerVariables SetupVariables, {
+    $Script:SplunkAPIHost = "https://localhost:$( $DockerSplunkAPIPort )"
+    $Script:SplunkURL = "http://localhost:$( $DockerSplunkWebPort )"
     $Script:RequestSplat = @{
         Method = "GET"
         Uri = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkUser )"
@@ -9,9 +9,31 @@ task UseDocker SetupVariables, {
     }
 }
 
-task CopyWebConfig UseDocker, {
-    exec { docker exec -it splunkdev-web-1 sudo bash -c "echo '[httpServer]' >> /opt/splunk/etc/system/local/server.conf"}
-    exec { docker exec -it splunkdev-web-1 sudo bash -c "echo 'crossOriginSharingPolicy = *' >> /opt/splunk/etc/system/local/server.conf"}
+task ConfigureCORS SetupVariables, {
+    $RequestSplat.Uri = "$( $SplunkAPIHost )/services/properties/server/httpServer/crossOriginSharingPolicy?output_mode=json"
+    try
+    {
+        $ExistingSetting = Invoke-RestMethod @RequestSplat -ResponseHeadersVariable ResponseHeaders
+    }
+    catch
+    {
+        $ExistingSetting = $false
+    }
+    if ($ExistingSetting -ne "*")
+    {
+        Write-Host "Updating CORS Settings"
+        $RequestSplat.Body = "crossOriginSharingPolicy=*"
+        $RequestSplat.Method = "POST"
+        $RequestSplat.Uri = "$( $SplunkAPIHost )/services/properties/server/httpServer"
+        Invoke-RestMethod @RequestSplat
+        $RequestSplat.Remove('Body')
+        $RequestSplat.Uri = "$( $SplunkAPIHost )/services/server/control/restart"
+        Invoke-RestMethod @RequestSplat
+    }
+    else
+    {
+        Write-Host "CORS is already configured on $SplunkAPIHost"
+    }
 }
 
 task CheckSplunkHealth SetupVariables, {
@@ -21,8 +43,9 @@ task CheckSplunkHealth SetupVariables, {
         SkipCertificateCheck = $true
         Credential = $SplunkCreds
     }
-    $global:result = Invoke-RestMethod @RequestSplat
+    $result = Invoke-RestMethod @RequestSplat
     assert($result.entry[0].content.health_info -eq "green")
+    Write-Host "Splunk is healthy on $SplunkAPIHost - Host: $( $result.entry[0].content.host ) Version: $( $result.entry[0].content.version )"
 }
 
 task SetupAuthToken CheckSplunkHealth, {
@@ -34,22 +57,22 @@ task SetupAuthToken CheckSplunkHealth, {
     }
     Invoke-RestMethod @RequestSplat
     $RequestSplat.Body = @{
-        name="admin"
-        audience="splunktest"
-        expires_on="+60d"
-        not_before=""
-        output_mode="json"
+        name = "admin"
+        audience = "splunktest"
+        expires_on = "+60d"
+        not_before = ""
+        output_mode = "json"
     }
     $RequestSplat.Uri = "$( $SplunkAPIHost )/services/authorization/tokens"
     $TokenResult = Invoke-RestMethod @RequestSplat
     $JWTToken = $TokenResult.entry[0].content.token
-    $TokenPath = "$($FrontendPath)/packages/radware-enrichment-components/demo/standalone/local_setup.js"
+    $TokenPath = "$( $FrontendPath )/packages/radware-enrichment-components/demo/standalone/local_setup.js"
     $TokenContent = @{
         splunkdHostUrl = $SplunkAPIHost
         splunkWebUrl = $SplunkURL
         adminToken = $JWTToken
     }
-    "window.`$DEVC = " + ($TokenContent | ConvertTo-Json ) | Out-File $TokenPath -Force
+    "window.`$DEVC = " + ($TokenContent | ConvertTo-Json) | Out-File $TokenPath -Force
 }
 
 ## Docker Tasks
@@ -68,7 +91,7 @@ task StartDockerContainer SetupVariables, {
     {
         exec {
             docker compose -f "$( $BuildRoot )/build/docker-compose-dev.yml" `
-                        -p "splunkdev" up -d
+                -p "splunkdev" up -d
         }
     }
     else
@@ -100,14 +123,14 @@ task CheckSplunkDockerHealth AssertDockerContainersExist, {
     assert { (docker ps --filter "name=$( $SplunkContainerName )" --format "{{.Status}}") -ne "" }
 }
 
-task DockerPester SetupVariables, {
+task DockerPester SetupDockerVariables, {
     $dockerTestParams = @{
-        SplunkAPIHost = "https://localhost:19089"
-        SplunkURL = "http://localhost:9000"
+        SplunkAPIHost = $Script:SplunkAPIHost
+        SplunkURL = $Script:SplunkURL
     }
     $pesterContainer = New-PesterContainer -Path "$( $BuildRoot )/test/*.tests.ps1" -Data $dockerTestParams
     $PesterConfig.Run.Container = $pesterContainer
-    Invoke-Pester -Container $pesterContainer -Output Detailed
+    Invoke-Pester -Configuration $Script:PesterConfig
 }
 
 task TestInDocker StartDockerContainer, CheckSplunkHealth, DockerPester, {
@@ -117,11 +140,11 @@ task TestInDocker StartDockerContainer, CheckSplunkHealth, DockerPester, {
 task PackageDownloadApp SetupVariables, {
     $RequestSplat = @{
         Method = "GET"
-        Uri = "https://localhost:19089/services/apps/local/radware_cwaf_enrichment/package"
+        Uri = "$( $SplunkAPIHost )/services/apps/local/radware_cwaf_enrichment/package?output_mode=json"
         SkipCertificateCheck = $true
         Credential = $SplunkCreds
     }
-    Invoke-RestMethod @RequestSplat
+    $global:mpx = Invoke-RestMethod @RequestSplat
 }
 
 task StopDockerContainer {

@@ -18,7 +18,7 @@
     "test:ci": "JEST_JUNIT_OUTPUT_DIR=./test-reports JEST_JUNIT_OUTPUT_NAME=unit-results.xml JEST_JUNIT_CLASSNAME=unit yarn run test --ci --reporters=default jest-junit --coverage --coverageDirectory=coverage_report/coverage_maps_unit --coverageReporters=cobertura",
     "test:watch": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --watch"
   },
-  "main": "RadwareEnrichmentSetupComponent.js",
+  "main": "MainAppViewComponent.js",
   "dependencies": {
     "@splunk/react-icons": "^3.3.1",
     "@splunk/react-time-range": "^8.1.2",

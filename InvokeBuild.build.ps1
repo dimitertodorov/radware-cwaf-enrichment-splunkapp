@@ -15,10 +15,10 @@ param(
     $DockerSplunkAPIPort = "19089",
     $DockerSplunkHECPort = "19088"
 )
+
 task UpdateApp SetupVariables, {
     $destinationPath = "$( $env:SPLUNK_HOME )/etc/apps/$( $SplunkAppName )"
-    if (-Not(Test-Path $destinationPath))
-    {
+    if (-Not(Test-Path $destinationPath)) {
         New-Item -Path $destinationPath -ItemType SymbolicLink -Value $SplunkAppPath
     }
     $refreshUri = "$SplunkAPIHost/services/apps/local/$( $SplunkAppName )?refresh=true"
@@ -36,10 +36,10 @@ task SetupVariables {
     [securestring]$SecureSplunkPassword = ConvertTo-SecureString $SplunkClearPassword -AsPlainText -Force
     [pscredential]$Script:SplunkCreds = New-Object System.Management.Automation.PSCredential ($SplunkUser, $SecureSplunkPassword)
     $Script:RequestSplat = @{
-        Method = "GET"
-        Uri = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkUser )"
+        Method               = "GET"
+        Uri                  = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkUser )"
         SkipCertificateCheck = $true
-        Credential = $SplunkCreds
+        Credential           = $SplunkCreds
     }
 
     $Script:PesterConfig = New-PesterConfiguration
@@ -51,43 +51,39 @@ task SetupVariables {
 
 task EnsureRegularUser SetupVariables, {
     $RequestSplat = @{
-        Method = "GET"
-        Uri = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkNormalUser )"
+        Method               = "GET"
+        Uri                  = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkNormalUser )"
         SkipCertificateCheck = $true
-        Credential = $SplunkCreds
+        Credential           = $SplunkCreds
     }
-    try
-    {
+    try {
         $UserExists = Invoke-RestMethod @RequestSplat
     }
-    catch
-    {
+    catch {
         $UserExists = $false
     }
-    if (-not$UserExists)
-    {
+    if (-not$UserExists) {
         $RequestSplat = @{
-            Method = "POST"
-            Body = @{
-                name = $SplunkNormalUser
-                password = $SplunkClearPassword
-                roles = "user"
+            Method               = "POST"
+            Body                 = @{
+                name        = $SplunkNormalUser
+                password    = $SplunkClearPassword
+                roles       = "user"
                 output_mode = "json"
             }
-            Uri = "$( $SplunkAPIHost )/services/authentication/users"
+            Uri                  = "$( $SplunkAPIHost )/services/authentication/users"
             SkipCertificateCheck = $true
-            Credential = $SplunkCreds
+            Credential           = $SplunkCreds
         }
         Invoke-RestMethod @RequestSplat
     }
-    else
-    {
+    else {
         $RequestSplat = @{
-            Method = "POST"
-            Body = "&roles=user&roles=radware_cwaf_enrichment_admin"
-            Uri = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkNormalUser )"
+            Method               = "POST"
+            Body                 = "&roles=user&roles=radware_cwaf_enrichment_admin"
+            Uri                  = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkNormalUser )"
             SkipCertificateCheck = $true
-            Credential = $SplunkCreds
+            Credential           = $SplunkCreds
         }
         Invoke-RestMethod @RequestSplat
     }
@@ -103,6 +99,12 @@ task BuildFrontend SetupVariables, {
     exec {
         yarn build
     }
+}
+
+task StartDemoApp {
+    $demoPath = "$( $BuildRoot )/frontend/packages/radware-enrichment-components"
+    Set-Location $demoPath
+    exec { yarn start:demo }
 }
 
 

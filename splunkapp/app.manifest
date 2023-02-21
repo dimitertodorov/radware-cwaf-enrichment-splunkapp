@@ -15,7 +15,7 @@
       }
     ],
     "releaseDate": null,
-    "description": "This SplunkApp connects to the Radware Cloud WAF API in order to extract Objects into Splunk KV Store collections.",
+    "description": "This SplunkApp connects to the Radware Cloud WAF API in order to extract Objects into Splunk KV Store collections.\nUses Generating commands to interact with the remote API and local KV store.",
     "classification": {
       "intendedAudience": "IT",
       "categories": [
@@ -28,7 +28,7 @@
     "license": {
       "name": "MIT",
       "text": "LICENSE.txt",
-      "uri": null
+      "uri": "https://github.com/dimitertodorov/radware-cwaf-enrichment-splunkapp/blob/master/splunkapp/LICENSE"
     },
     "privacyPolicy": {
       "name": null,
@@ -37,8 +37,8 @@
     },
     "releaseNotes": {
       "name": "README",
-      "text": "README.txt",
-      "uri": "https://github.com/dimitertodorov/luna-dpod-splunkapp/blob/master/README.md"
+      "text": "README.md",
+      "uri": "https://github.com/dimitertodorov/radware-cwaf-enrichment-splunkapp/blob/master/splunkapp/CHANGELOG.md"
     }
   },
   "dependencies": {},

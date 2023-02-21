@@ -17,6 +17,7 @@ sys.path.append(os.path.join(os.path.dirname(
     os.path.abspath(__file__)), '..', 'lib'))
 
 import radware_cwaf_common as rwc
+import splunklib.client as client
 from splunklib.searchcommands import GeneratingCommand, Option
 
 
@@ -94,6 +95,27 @@ class RadwareCommonCommand(GeneratingCommand):
             self.app_logger.error(
                 "User %s is unauthorized. Has the %s capability been granted?" % (current_user, required_permission))
             sys.exit(3)
+
+        # Sanitize inputs
+        if self.tenant_id:
+            self.app_logger.debug('Tenant ID Context: %s' % self.tenant_id)
+        else:
+            self.tenant_id = None
+
+    def get_object_store(self):
+        # Ensure we have a collection set up.
+        # if not, then create the object collection
+        opts = {"owner": "nobody", "token": self._metadata.searchinfo.session_key, "app": "radware_cwaf_enrichment"}
+        service_client = client.connect(**opts)
+        collection_name = f"radware_cwaf_{self.object_type}"
+        collections = service_client.kvstore
+        if collection_name in collections:
+            object_store = collections[collection_name]
+        else:
+            service_client.kvstore.create(
+                collection_name, app=opts["app"], sharing="global")
+            object_store = service_client.kvstore[collection_name]
+        return object_store
 
     def get_radware_objects(self):
         # Get objects from the API

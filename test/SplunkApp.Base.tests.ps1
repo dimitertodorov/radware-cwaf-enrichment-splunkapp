@@ -1,6 +1,6 @@
 Param (
     $SplunkAPIHost = "https://localhost:8089",
-    $SplunkURL = "http://lvh.me:8000",
+    $SplunkURL = "http://localhost:8000",
     $SplunkUser = "admin",
     $SplunkClearPassword = "newPassword",
     $MaxWaitSeconds = 60,
@@ -8,7 +8,7 @@ Param (
     $SplunkLocalPath = "splunkapp/local"
 )
 
-Describe 'SplunkApp - PowerShell Tests' {
+Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
     BeforeAll {
         if (Test-Path $SplunkLocalPath)
         {
@@ -51,20 +51,20 @@ Describe 'SplunkApp - PowerShell Tests' {
                 search = $SearchQuery
                 output_mode = 'json'
                 earliest_time = '-5m'
+                exec_mode = 'oneshot'
             }
             While (($SearchResults -eq 0) -and ($LoopCounter -lt $MaxWaitSeconds))
             {
                 $RequestSplat = @{
                     Method = "POST"
                     Body = $SearchParams
-                    Uri = "$( $SplunkAPIHost )/services/search/jobs/export"
+                    Uri = "$( $SplunkAPIHost )/services/search/jobs"
                     SkipCertificateCheck = $true
                     Credential = $Credentials
                 }
                 $SplunkSearchResults = Invoke-RestMethod @RequestSplat
                 $LoopCounter += 1
-                $SearchResults = ($SplunkSearchResults -split "\n").Count - 1
-
+                $SearchResults = $SplunkSearchResults.results.Count
                 Start-Sleep -Seconds 1
             }
             Write-Verbose "Splunk Search Completed - $( $SearchResults ) Events Found"
@@ -113,7 +113,7 @@ Describe 'SplunkApp - PowerShell Tests' {
         }
     }
 
-    Describe 'ConfigEndpoint' {
+    Describe 'test radware_cwaf_enrichment_config/settings config' {
         BeforeAll {
             Ensure-NormalUser
             Refresh-SplunkApp
@@ -209,7 +209,7 @@ Describe 'SplunkApp - PowerShell Tests' {
             }
         }
     }
-    Describe 'radwarecwaflistremote Splunk Search Command' {
+    Describe 'Test Generating Commands' {
         BeforeAll {
             Ensure-NormalUser
             Refresh-SplunkApp
@@ -223,9 +223,19 @@ Describe 'SplunkApp - PowerShell Tests' {
             $result = Invoke-RestMethod @BaseRequest
         }
 
-        It 'Should return a list of remote objects' {
+        It 'Should execute radwarecwaflistremote command ' {
             $result = Invoke-SplunkSearchCommand -SearchQuery " | radwarecwaflistremote"
-            $result | Should -Not -BeNullOrEmpty
+            $result.results.Count | Should -BeExactly 3
+        }
+
+        It 'Should execute radwarecwafimportremote command ' {
+            $result = Invoke-SplunkSearchCommand -SearchQuery " | radwarecwafimportremote"
+            $result.results.Count | Should -BeExactly 4
+        }
+
+        It 'Should execute radwarecwafdeletelocal command ' {
+            $result = Invoke-SplunkSearchCommand -SearchQuery " | radwarecwafdeletelocal"
+            $result.results.Count | Should -BeExactly 1
         }
 
         AfterAll {
