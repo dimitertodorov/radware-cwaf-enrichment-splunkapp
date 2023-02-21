@@ -13,7 +13,7 @@ import {RadwareEnrichmentContext} from "../RadwareEnrichmentContext"
 import Toaster, {makeCreateToast} from "@splunk/react-toast-notifications/Toaster"
 import {TOAST_TYPES} from "@splunk/react-toast-notifications/ToastConstants"
 import SearchJob from "@splunk/search-job"
-import {staticConfig} from "../services/SplunkWebConfig"
+import {getStaticConfig} from "../services/SplunkWebConfig"
 import DashboardComponent from "./DashboardComponent"
 import { get as _get } from 'lodash'
 import { set as _set } from 'lodash'
@@ -62,8 +62,8 @@ function MainAppViewComponent({
 
     if (!runningInSplunk) {
         var root = typeof window === 'undefined' ? global : window;
-        _set([root, '$C'], staticConfig.config)
-        SearchJob.setSplunkConfig(staticConfig)
+        _set([root, '$C'], getStaticConfig().config)
+        SearchJob.setSplunkConfig(getStaticConfig())
         SearchJob.setBaseFetchInit(configService.configDataService.getFetchConfig())
 
     }

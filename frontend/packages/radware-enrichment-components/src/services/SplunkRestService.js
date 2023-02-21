@@ -1,7 +1,7 @@
 import {convertCredentials, parseConfig} from "./AppConfigHelper"
 import * as config from "@splunk/splunk-utils/config"
 import {defaultFetchInit, handleResponse} from '@splunk/splunk-utils/fetch'
-import {staticConfig} from "./SplunkWebConfig"
+import {getStaticConfig} from "./SplunkWebConfig"
 
 // This service handles all interaction with the Splunk REST API
 // It is used by the AppConfigService to get and update the app's configuration, and perform any other REST API calls.
@@ -30,10 +30,6 @@ class SplunkRestService {
             return `/en-US/splunkd/__raw${url}`
         }
         return `${this.localSplunkHost}${url}`
-    }
-
-    getRemoteConfig = () => {
-        return staticConfig
     }
 
     getFetchConfig = () => {
