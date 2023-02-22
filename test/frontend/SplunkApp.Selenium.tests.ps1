@@ -108,6 +108,12 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
         }
     }
 
+    AfterAll {
+        if($WebDriver) {
+            $WebDriver.Dispose()
+        }
+    }
+
     Describe 'basic Splunk acessibility' {
         BeforeAll {
             Load-LocalSelenium
