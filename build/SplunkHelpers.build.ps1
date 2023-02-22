@@ -78,7 +78,7 @@ task DockerPester SetupDockerVariables, {
     Invoke-Pester -Configuration $Script:PesterConfig
 }
 
-task TestInDocker StartDockerContainer, CheckSplunkDockerHealth, DockerPester, {
+task TestInDocker StartDockerContainer, CheckSplunkDockerHealth, CheckSplunkHealth, DockerPester, {
     Write-Host "TestInDocker Complete"
 }
 

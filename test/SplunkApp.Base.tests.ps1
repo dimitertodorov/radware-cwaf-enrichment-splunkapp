@@ -1,6 +1,5 @@
 Param (
     $SplunkAPIHost = "https://localhost:8089",
-    $SplunkURL = "http://localhost:8000",
     $SplunkUser = "admin",
     $SplunkClearPassword = "newPassword",
     $MaxWaitSeconds = 60,
@@ -8,8 +7,9 @@ Param (
     $SplunkLocalPath = "splunkapp/local"
 )
 
-Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
+Describe "SplunkApp" {
     BeforeAll {
+        Write-Host "Testing SplunkApp on $SplunkAPIHost"
         if (Test-Path $SplunkLocalPath)
         {
             Remove-Item "$SplunkLocalPath/*.conf" -Force
@@ -113,14 +113,14 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
         }
     }
 
-    Describe 'test radware_cwaf_enrichment_config/settings config' {
+    Describe 'custom config endpoint' {
         BeforeAll {
             Ensure-NormalUser
             Refresh-SplunkApp
         }
 
-        Describe 'Updating Log Level' {
-            It 'Updates the Log Level to INFO' {
+        Describe 'setting log_level' {
+            It 'can update log_level to INFO' {
                 $BaseRequest.Body = @{
                     output_mode = "json"
                     "log_level" = "DEBUG"
@@ -129,7 +129,7 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
                 $result.entry[0].content.log_level | Should -Be "DEBUG"
             }
 
-            It 'Updates the Log Level to and invalid option should fail' {
+            It 'setting the log_level to an invalid option should fail' {
                 $BaseRequest.Body = @{
                     output_mode = "json"
                     "log_level" = "XXCV"
@@ -141,14 +141,14 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
                 catch
                 {
                     $_.Exception.Response.StatusCode | Should -Be 400
-                    $_.ErrorDetails.Message | Should -BeLike "*The value of XXCV  is not in permitted options*"
+                    $_.ErrorDetails.Message | Should -BeLike "*is not in permitted options*"
                 }
             }
         }
 
 
-        Describe 'Credential Methods' {
-            It 'Adds Should raise an error when mandatory parameter is not provided for a new user' {
+        Describe 'configuring credential configurations' {
+            It 'should raise an error when mandatory parameter is not provided for a new user' {
                 $BaseRequest.Body = @{
                     output_mode = "json"
                     "credential.create.username" = "user123"
@@ -165,7 +165,7 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
                 }
             }
 
-            It 'Should Successfully Create a new User' {
+            It 'should successfully create a new user' {
                 $BaseRequest.Body = @{
                     output_mode = "json"
                     "credential.create.username" = "mock_user_radware_prod"
@@ -177,7 +177,7 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
                 $result.entry[0].content | Should -Not -BeNullOrEmpty
             }
 
-            It 'Should successfully update an existing User' {
+            It 'should successfully update an existing user' {
                 $Uname = (New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds
                 $BaseRequest.Body = @{
                     output_mode = "json"
@@ -189,7 +189,7 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
                 $result.entry[0].content.'credential.1.username' | Should -Be "mock_$Uname"
             }
 
-            It 'Should not update an existing Username if no action is specified' {
+            It 'should not update existing user properties if action is not set to update' {
                 $Uname = (New-TimeSpan -Start (Get-Date "01/01/1970") -End (Get-Date)).TotalSeconds
                 $BaseRequest.Body = @{
                     output_mode = "json"
@@ -199,7 +199,7 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
                 $result.entry[0].content.'credential.1.username' | Should -Not -Be $Uname
             }
 
-            It 'Should Successfully Delete a User and their passwords' {
+            It 'should successfully delete a user and their passwords' {
                 $BaseRequest.Body = @{
                     output_mode = "json"
                     "credential.1.action" = "delete"
@@ -209,7 +209,7 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
             }
         }
     }
-    Describe 'Test Generating Commands' {
+    Describe 'Generating Commands' {
         BeforeAll {
             Ensure-NormalUser
             Refresh-SplunkApp
@@ -223,17 +223,17 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
             $result = Invoke-RestMethod @BaseRequest
         }
 
-        It 'Should execute radwarecwaflistremote command ' {
+        It 'should execute radwarecwaflistremote command ' {
             $result = Invoke-SplunkSearchCommand -SearchQuery " | radwarecwaflistremote"
             $result.results.Count | Should -BeExactly 3
         }
 
-        It 'Should execute radwarecwafimportremote command ' {
+        It 'should execute radwarecwafimportremote command ' {
             $result = Invoke-SplunkSearchCommand -SearchQuery " | radwarecwafimportremote"
             $result.results.Count | Should -BeExactly 4
         }
 
-        It 'Should execute radwarecwafdeletelocal command ' {
+        It 'should execute radwarecwafdeletelocal command ' {
             $result = Invoke-SplunkSearchCommand -SearchQuery " | radwarecwafdeletelocal"
             $result.results.Count | Should -BeExactly 1
         }
@@ -243,7 +243,7 @@ Describe "SplunkApp - PowerShell Tests - Splunkd Host: $SplunkAPIHost" {
                 output_mode = "json"
                 "credential.1.action" = "delete"
             }
-            $result = Invoke-RestMethod @BaseRequest
+            Invoke-RestMethod @BaseRequest | Out-Null
         }
     }
 }

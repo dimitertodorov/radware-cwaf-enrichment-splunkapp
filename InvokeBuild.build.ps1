@@ -18,6 +18,34 @@ param(
     $MaxWaitAppInspect = 300
 )
 
+task SetupVariables {
+    $Script:SplunkAppPath = (Resolve-Path "$( $BuildRoot )/splunkapp/")
+    $Script:FrontendPath = (Resolve-Path "$( $BuildRoot )/frontend/")
+    [securestring]$SecureSplunkPassword = ConvertTo-SecureString $SplunkClearPassword -AsPlainText -Force
+    [pscredential]$Script:SplunkCreds = New-Object System.Management.Automation.PSCredential ($SplunkUser, $SecureSplunkPassword)
+    $Script:RequestSplat = @{
+        Method               = "GET"
+        Uri                  = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkUser )"
+        SkipCertificateCheck = $true
+        Credential           = $SplunkCreds
+    }
+
+    $Script:PesterConfig = New-PesterConfiguration
+    $Script:PesterConfig.TestResult.OutputFormat = "NUnitXml"
+    $Script:PesterConfig.TestResult.OutputPath = "$( $BuildRoot )/output/TestResults.xml"
+    $Script:PesterConfig.TestResult.Enabled = $True
+    $Script:PesterConfig.Output.Verbosity = "Detailed"
+
+    $EnvironmentParamArray = @( "SplunkAPIHost", "SplunkURL", "SplunkUser", "SplunkClearPassword", "SplunkNormalUser")
+    $EnvironmentParamArray += @( "DockerSplunkImage", "DockerSplunkHostname", "DockerSplunkWebPort", "DockerSplunkAPIPort", "DockerSplunkHECPort", "SplunkContainerName")
+    foreach ($EnvironmentParam in $EnvironmentParamArray) {
+        if (Test-Path env:$EnvironmentParam) {
+            Write-Host "Setting $EnvironmentParam from environment variable."
+            Set-Variable -Scope Script -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
+        }
+    }
+}
+
 task UpdateApp SetupVariables, {
     $destinationPath = "$( $env:SPLUNK_HOME )/etc/apps/$( $SplunkAppName )"
     if (-Not(Test-Path $destinationPath)) {
@@ -44,25 +72,6 @@ task PesterFrontend SetupVariables, {
     $FrontendPesterConfig.Output.Verbosity = "Detailed"
     $FrontendPesterConfig.Run.Container = (New-PesterContainer -Path "$( $BuildRoot )/test/frontend/*.tests.ps1" -Data $TestParams)
     Invoke-Pester -Configuration $FrontendPesterConfig
-}
-
-task SetupVariables {
-    $Script:SplunkAppPath = (Resolve-Path "$( $BuildRoot )/splunkapp/")
-    $Script:FrontendPath = (Resolve-Path "$( $BuildRoot )/frontend/")
-    [securestring]$SecureSplunkPassword = ConvertTo-SecureString $SplunkClearPassword -AsPlainText -Force
-    [pscredential]$Script:SplunkCreds = New-Object System.Management.Automation.PSCredential ($SplunkUser, $SecureSplunkPassword)
-    $Script:RequestSplat = @{
-        Method               = "GET"
-        Uri                  = "$( $SplunkAPIHost )/services/authentication/users/$( $SplunkUser )"
-        SkipCertificateCheck = $true
-        Credential           = $SplunkCreds
-    }
-
-    $Script:PesterConfig = New-PesterConfiguration
-    $Script:PesterConfig.TestResult.OutputFormat = "NUnitXml"
-    $Script:PesterConfig.TestResult.OutputPath = "$( $BuildRoot )/output/TestResults.xml"
-    $Script:PesterConfig.TestResult.Enabled = $True
-    $Script:PesterConfig.Output.Verbosity = "Detailed"
 }
 
 task EnsureRegularUser SetupVariables, {

@@ -5,11 +5,16 @@ Param (
     $SplunkClearPassword = "newPassword",
     $MaxWaitSeconds = 60,
     $SplunkNormalUser = "raduser1",
-    $SplunkLocalPath = "splunkapp/local",
-    $RunningHeadless = $true
+    $RunningHeadless = $false
 )
-Describe "Selenium Testing Setup $SplunkURL" {
+Describe "SplunkApp radware_cwaf_enrichment Frontend" {
     BeforeAll {
+        $EnvironmentParamArray = @( "SplunkAPIHost", "SplunkURL", "SplunkUser", "SplunkClearPassword", "SplunkNormalUser", "RunningHeadless")
+        foreach($EnvironmentParam in $EnvironmentParamArray) {
+            if(Test-Path env:$EnvironmentParam) {
+                Set-Variable -Scope Script -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
+            }
+        }
         function Load-LocalSelenium {
             $Script:SeleniumPath = Resolve-Path -Path "$PSScriptRoot\..\..\build\selenium"
             [System.Reflection.Assembly]::LoadFrom("$($seleniumPath)\WebDriver.dll")
@@ -52,16 +57,6 @@ Describe "Selenium Testing Setup $SplunkURL" {
             }While ($StopLoop -eq $false )
         }
         
-        function Select-Dropdown {
-            Param(
-                [parameter(Position = 0)]$Id,
-                [parameter(Position = 1)]$Text
-            ) 
-            $el = $WebDriver.FindElement([OpenQA.Selenium.By]::Id($Id))
-            $ddl = new-object OpenQA.Selenium.Support.UI.SelectElement -ArgumentList $el
-            $ddl.SelectByText($Text)
-        }
-        
         function Set-InputContent {
             Param(
                 [parameter(Position = 0)]$Id,
@@ -98,7 +93,7 @@ Describe "Selenium Testing Setup $SplunkURL" {
             }
         }
 
-        function Selenium-LoginSplunk {
+        function Login-SeleniumSplunk {
             $WebDriver.Navigate().GoToUrl($SplunkURL)
             if (Check-ElementExists -XPathOrId "//input[@id='username']") {
                 Set-InputContent -Id "username" -Text $SplunkUser
@@ -111,14 +106,14 @@ Describe "Selenium Testing Setup $SplunkURL" {
         }
     }
 
-    Describe 'Basic Splunk Functionality' {
+    Describe 'basic Splunk acessibility' {
         BeforeAll {
             Load-LocalSelenium
             Start-WebDriver
         }
 
-        It 'Logs into Splunk Successfully and the app is visible' {
-            Selenium-LoginSplunk
+        It 'logs into Splunk successfully and the app is visible' {
+            Login-SeleniumSplunk
             Wait-Element -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']"
             (Check-ElementExists -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']") | Should -Not -BeNullOrEmpty
         }
@@ -128,40 +123,40 @@ Describe "Selenium Testing Setup $SplunkURL" {
         }
     }
 
-    Describe 'Test SplunkApp Frontend' {
+    Describe 'radware_cwaf_enrichment react app test' {
         BeforeAll {
             Load-LocalSelenium
             Start-WebDriver
-            Selenium-LoginSplunk
+            Login-SeleniumSplunk
             Wait-Element -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']"
         }
 
-        It 'Successfully loads the start page' {
+        It 'successfully loads the start page' {
             $WebDriver.Navigate().GoToUrl("$SplunkURL/en-US/app/radware_cwaf_enrichment/start")
             Wait-Element -XPathOrId "//button[@title='Setup']"
             $SetupButton = Check-ElementExists -XPathOrId "//button[@title='Setup']"
             $SetupButton | Should -Not -BeNullOrEmpty
         }
 
-        It 'Loads the setup tab correctly' {
+        It 'successfully loads the setup tab' {
             $SetupButton = Check-ElementExists -XPathOrId "//button[@title='Setup']"
             $SetupButton | Should -Not -BeNullOrEmpty
             $SetupButton.Click()
         }
 
-        It 'Loads the manage objects tab correctly' {
+        It 'successfully loads the manage objects tab' {
             $TabButton = Check-ElementExists -XPathOrId "//button[@title='Manage Objects']"
             $TabButton | Should -Not -BeNullOrEmpty
             $TabButton.Click()
         }
 
-        It 'Loads the about tab correctly' {
+        It 'successfully loads the about tab' {
             $TabButton = Check-ElementExists -XPathOrId "//button[@title='About']"
             $TabButton | Should -Not -BeNullOrEmpty
             $TabButton.Click()
         }
 
-        It 'Loads the logs tab correctly' {
+        It 'successfully loads the logs tab' {
             $TabButton = Check-ElementExists -XPathOrId "//button[@title='Logs']"
             $TabButton | Should -Not -BeNullOrEmpty
             $TabButton.Click()

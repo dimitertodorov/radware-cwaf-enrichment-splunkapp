@@ -8,6 +8,14 @@ jobs:
   Test-SplunkApp-Frontend:
     permissions: write-all
     runs-on: ubuntu-latest
+    env:
+      DockerSplunkAPIPort: 19089
+      DockerSplunkWebPort: 19000
+      DockerSplunkHostname: splunkweb-testing-container1
+      SplunkAPIHost: http://localhost:19089
+      SplunkURL: http://localhost:19000
+      SplunkUser: admin
+      SplunkClearPassword: ciTestingInsecure
     steps:
       - uses: actions/checkout@v1
       - uses: nanasess/setup-chromedriver@v1
@@ -50,15 +58,15 @@ jobs:
         run: |
           cd frontend
           yarn build
-      - name: Start Docker Container
+      - name: Start Docker Container and Wait
         shell: pwsh
         run: |
-          Invoke-Build -Task TestFrontendInDocker
+          Invoke-Build -Task StartDockerContainer, CheckSplunkDockerHealth, CheckSplunkHealth
       - name: test frontend
         id: test_frontend
         uses: zyborg/pester-tests-report@v1
         with:
-          test_results_path: output/TestResults_Frontend.xml
+          include_paths: test/frontend/SplunkApp.Selenium.tests.ps1
           report_name: frontend_tests
           report_title: SplunkApp Frontend Tests
           github_token: ${{ secrets.GITHUB_TOKEN }}
