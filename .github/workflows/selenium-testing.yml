@@ -16,6 +16,7 @@ jobs:
       SplunkURL: http://localhost:19000
       SplunkUser: admin
       SplunkClearPassword: newPassword
+      RunningHeadless: true
     steps:
       - uses: actions/checkout@v1
       - uses: nanasess/setup-chromedriver@v1
