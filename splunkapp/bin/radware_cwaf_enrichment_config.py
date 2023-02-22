@@ -7,24 +7,14 @@
 # Dimiter Todorov - 2023
 
 import copy
-import os
 import re
-import sys
 
 import splunk.admin as admin
 import splunk.entity as entity
 
-from radware_cwaf_common import setup_logger, CredentialHandler
+from radware_cwaf_common import CredentialHandler, setup_logger
 
-# Add lib folders to import path
-sys.path.append(os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), '..', 'lib'))
-
-# Facility info - prepended to log lines
-facility = os.path.basename(__file__)
-facility = os.path.splitext(facility)[0]
-# Set up the logger
-logger = setup_logger(facility)
+logger = setup_logger('radware_cwaf_enrichment_config')
 
 
 class StandardFieldValidator(object):

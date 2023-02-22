@@ -21,10 +21,6 @@ from splunk.clilib import cli_common as cli
 from mock_service.radware_cwaf_mock_api_service import MockRadwareService
 from radware_cwaf_api_service import RadwareCwafService
 
-# Add lib folders to import path
-sys.path.append(os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), '..', 'lib'))
-
 from splunklib import client
 
 APP_NAME = 'radware_cwaf_enrichment'

@@ -4,8 +4,8 @@
     "title": "Radware CWAF Enrichment",
     "id": {
       "group": null,
-      "name": "radware-cwaf-enrichment",
-      "version": "1.1.0"
+      "name": "radware_cwaf_enrichment",
+      "version": "1.1.1"
     },
     "author": [
       {
@@ -27,7 +27,7 @@
     "commonInformationModels": null,
     "license": {
       "name": "MIT",
-      "text": "LICENSE.txt",
+      "text": "LICENSE",
       "uri": "https://github.com/dimitertodorov/radware-cwaf-enrichment-splunkapp/blob/master/splunkapp/LICENSE"
     },
     "privacyPolicy": {
@@ -36,8 +36,8 @@
       "uri": null
     },
     "releaseNotes": {
-      "name": "README",
-      "text": "README.md",
+      "name": "CHANGELOG",
+      "text": "CHANGELOG.md",
       "uri": "https://github.com/dimitertodorov/radware-cwaf-enrichment-splunkapp/blob/master/splunkapp/CHANGELOG.md"
     }
   },
@@ -49,5 +49,7 @@
     "splunk": {
       "Enterprise": "*"
     }
-  }
+  },
+  "supportedDeployments": ["_standalone", "_distributed", "_search_head_clustering"],
+  "targetWorkloads": ["_search_heads"]
 }

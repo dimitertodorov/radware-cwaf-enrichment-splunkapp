@@ -3,7 +3,6 @@
 
 from __future__ import print_function
 
-import os
 import sys
 
 from future import standard_library
@@ -11,10 +10,6 @@ from future import standard_library
 from radware_cwaf_common_command import RadwareCommonCommand
 
 standard_library.install_aliases()
-
-# Add lib folders to import path
-sys.path.append(os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), '..', 'lib'))
 
 from splunklib.searchcommands import dispatch, Configuration
 

@@ -5,12 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
-            "type": "python",
+            "name": "PowerShell Launch Current File",
+            "type": "PowerShell",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true
+            "script": "${file}",
+            "cwd": "${cwd}"
         }
     ]
 }

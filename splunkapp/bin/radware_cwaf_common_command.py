@@ -12,10 +12,6 @@ import sys
 import splunk.rest as rest
 from splunk.clilib import cli_common as cli
 
-# Add lib folders to import path
-sys.path.append(os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), '..', 'lib'))
-
 import radware_cwaf_common as rwc
 import splunklib.client as client
 from splunklib.searchcommands import GeneratingCommand, Option

@@ -13,7 +13,9 @@ param(
     $DockerSplunkHostname = "splunkdev001",
     $DockerSplunkWebPort = "9000",
     $DockerSplunkAPIPort = "19089",
-    $DockerSplunkHECPort = "19088"
+    $DockerSplunkHECPort = "19088",
+    ## Splunkbase Variables
+    $MaxWaitAppInspect = 300
 )
 
 task UpdateApp SetupVariables, {
@@ -107,6 +109,44 @@ task StartDemoApp {
     exec { yarn start:demo }
 }
 
+## Packaging Tasks
+task GetVersion {
+    $ManifestProps = ((Get-Content -Raw "./splunkapp/app.manifest") | ConvertFrom-JSON)
+    $Script:AppVersion = $ManifestProps.info.id.version
+    $AppConfVersion = (Select-String -Path "./splunkapp/default/app.conf" -Pattern "^version = ").Line
+    $AppConfVersion = $AppConfVersion -replace "version|\s|=", ""
+
+    assert ($AppConfVersion -eq $AppVersion) "Version in app.conf ($AppConfVersion) does not match manifest version ($AppVersion)"
+
+    $Script:PackageFileName = "$( $SplunkAppName )-$( $AppVersion ).tar.gz"
+    $Script:AppStageDirectory = "$( $BuildRoot )/output/$( $SplunkAppName )"
+}
+
+task BuildSplunkAppTgz GetVersion, {
+    #Get-ChildItem -Path "./splunkapp" -Recurse -Filter "__pycache__" | Remove-Item -Recurse -Force
+    if (Test-Path -Path $AppStageDirectory) {
+        Remove-Item -Path $AppStageDirectory -Recurse -Force
+    }
+    New-Item -Type Directory -Path $AppStageDirectory
+    Copy-Item -Path "$( $BuildRoot )/splunkapp/*" -Destination $AppStageDirectory -Recurse
+    $RemoveItems = @(
+        "local/"
+        "metadata/local.meta"
+    )
+    foreach ($i in $RemoveItems) {
+        $iPath = Join-Path $AppStageDirectory $i
+        if (Test-Path $iPath) {
+            Remove-Item -Path $iPath -Recurse -Force
+        }
+    }
+    Get-ChildItem -Path $AppStageDirectory -Recurse -Filter "__pycache__" | Remove-Item -Recurse -Force
+
+    Set-Location "$( $BuildRoot )/output/"
+    exec { tar --exclude=".*" -czf "$($BuildRoot)/$PackageFileName"  $SplunkAppName }
+    Set-Location $BuildRoot
+    $PackagePath = (Resolve-Path -Path "$($BuildRoot)/$PackageFileName").Path
+    Write-Output "##vso[task.setvariable variable=SplunkAppPackagePath]$PackagePath"
+}
 
 . (Resolve-Path "$( $BuildRoot )/build/SplunkHelpers.build.ps1")
 
