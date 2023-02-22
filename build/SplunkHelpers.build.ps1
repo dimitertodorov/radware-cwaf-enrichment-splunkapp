@@ -78,8 +78,12 @@ task DockerPester SetupDockerVariables, {
     Invoke-Pester -Configuration $Script:PesterConfig
 }
 
-task TestInDocker StartDockerContainer, CheckSplunkHealth, DockerPester, {
+task TestInDocker StartDockerContainer, CheckSplunkDockerHealth, DockerPester, {
     Write-Host "TestInDocker Complete"
+}
+
+task TestFrontendInDocker StartDockerContainer, CheckSplunkDockerHealth, CheckSplunkHealth, PesterFrontend, {
+    Write-Host "Frontend Testing Complete"
 }
 
 ## Common Splunk Tasks - Can be used in both Docker and Local Splunk. To use in Docker, use SetupDockerVariables first

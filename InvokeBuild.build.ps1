@@ -6,7 +6,7 @@ param(
     $SplunkAppName = "radware_cwaf_enrichment",
     $SplunkContainerName = "splunkdev-web-1",
     $SplunkClearPassword = "newPassword",
-    $MaxWaitSeconds = 60,
+    $MaxWaitSeconds = 240,
     $BuildRoot = $BuildRoot,
     ## Docker Variables
     $DockerSplunkImage = "splunk/splunk:9.0.3",
@@ -30,6 +30,20 @@ task UpdateApp SetupVariables, {
 task Pester SetupVariables, {
     $PesterConfig.Run.Container = (New-PesterContainer -Path "$( $BuildRoot )/test/*.tests.ps1")
     Invoke-Pester -Configuration $Script:PesterConfig
+}
+
+task PesterFrontend SetupVariables, {
+    $TestParams = @{
+        SplunkAPIHost = $Script:SplunkAPIHost
+        SplunkURL     = $Script:SplunkURL
+    }
+    $FrontendPesterConfig = New-PesterConfiguration
+    $FrontendPesterConfig.TestResult.OutputFormat = "NUnitXml"
+    $FrontendPesterConfig.TestResult.OutputPath = "$( $BuildRoot )/output/TestResults_Frontend.xml"
+    $FrontendPesterConfig.TestResult.Enabled = $True
+    $FrontendPesterConfig.Output.Verbosity = "Detailed"
+    $FrontendPesterConfig.Run.Container = (New-PesterContainer -Path "$( $BuildRoot )/test/frontend/*.tests.ps1" -Data $TestParams)
+    Invoke-Pester -Configuration $FrontendPesterConfig
 }
 
 task SetupVariables {
