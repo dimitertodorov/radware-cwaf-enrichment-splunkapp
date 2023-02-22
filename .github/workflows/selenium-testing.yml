@@ -62,12 +62,12 @@ jobs:
       - name: Start Docker Container and Wait
         shell: pwsh
         run: |
-          Invoke-Build -Task TestFrontendInDocker
+          Invoke-Build -Task StartDockerContainer, CheckSplunkDockerHealth, CheckSplunkHealth
       - name: test frontend
         id: test_frontend
         uses: zyborg/pester-tests-report@v1
         with:
-          test_results_path: output/TestResults_Frontend.xml
+          include_paths: test/frontend/SplunkApp.Selenium.tests.ps1
           report_name: frontend_tests
           report_title: SplunkApp Frontend Tests
           github_token: ${{ secrets.GITHUB_TOKEN }}
