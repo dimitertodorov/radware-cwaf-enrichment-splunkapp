@@ -12,6 +12,7 @@ Describe "SplunkApp" {
         $EnvironmentParamArray = @( "SplunkAPIHost", "SplunkURL", "SplunkUser", "SplunkClearPassword", "SplunkNormalUser", "RunningHeadless")
         foreach($EnvironmentParam in $EnvironmentParamArray) {
             if(Test-Path env:$EnvironmentParam) {
+                Write-Host "Setting $EnvironmentParam from environment variable."
                 Set-Variable -Scope Script -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
             }
         }

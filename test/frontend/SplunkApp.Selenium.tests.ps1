@@ -12,6 +12,7 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
         $EnvironmentParamArray = @( "SplunkAPIHost", "SplunkURL", "SplunkUser", "SplunkClearPassword", "SplunkNormalUser", "RunningHeadless")
         foreach($EnvironmentParam in $EnvironmentParamArray) {
             if(Test-Path env:$EnvironmentParam) {
+                Write-Host "Setting $EnvironmentParam from environment variable."
                 Set-Variable -Scope Script -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
             }
         }
@@ -69,9 +70,7 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
 
         function Start-WebDriver {
             $Options = New-Object OpenQA.Selenium.Chrome.ChromeOptions
-            if($RunningHeadless) {
-                $Options.AddArguments("--headless")
-            }
+            $Options.AddArgument("--headless")
             $Options.AddArgument("--log-level=3")
             $Options.AddArguments("--disable-gpu", "--window-size=1920,1200","--ignore-certificate-errors","--disable-extensions","--no-sandbox","--disable-dev-shm-usage") | Out-Null
             if ($WebDriver) {
@@ -94,6 +93,7 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
         }
 
         function Login-SeleniumSplunk {
+            Write-Host "Logging in to Splunk @ $SplunkURL"
             $WebDriver.Navigate().GoToUrl($SplunkURL)
             if (Check-ElementExists -XPathOrId "//input[@id='username']") {
                 Set-InputContent -Id "username" -Text $SplunkUser
