@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - uses: nanasess/setup-chromedriver@v1
       - name: Setup PowerShell module cache
         id: cacher
         uses: actions/cache@v3
