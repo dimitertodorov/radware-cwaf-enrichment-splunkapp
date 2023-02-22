@@ -12,7 +12,7 @@ jobs:
       DockerSplunkAPIPort: 19089
       DockerSplunkWebPort: 19000
       DockerSplunkHostname: splunkweb-testing-container1
-      SplunkAPIHost: http://localhost:19089
+      SplunkAPIHost: https://localhost:19089
       SplunkURL: http://localhost:19000
       SplunkUser: admin
       SplunkClearPassword: newPassword
