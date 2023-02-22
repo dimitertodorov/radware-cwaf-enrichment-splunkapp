@@ -15,7 +15,7 @@ jobs:
       SplunkAPIHost: http://localhost:19089
       SplunkURL: http://localhost:19000
       SplunkUser: admin
-      SplunkClearPassword: ciTestingInsecure
+      SplunkClearPassword: newPassword
     steps:
       - uses: actions/checkout@v1
       - uses: nanasess/setup-chromedriver@v1
