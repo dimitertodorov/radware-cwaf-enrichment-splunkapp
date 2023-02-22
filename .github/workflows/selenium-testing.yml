@@ -5,16 +5,12 @@ on:
     branches:
       - seleniumtesting
 jobs:
+  buildbase:
+    uses: './.github/workflows/base-build-install.yml'
   Test-SplunkApp-Frontend:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - uses: './.github/workflow/base-build-install.yml'
-      - name: Build Frontend
-        shell: pwsh
-        run: |
-          cd frontend
-          yarn build
       - name: Start Docker Container
         shell: pwsh
         run: |
