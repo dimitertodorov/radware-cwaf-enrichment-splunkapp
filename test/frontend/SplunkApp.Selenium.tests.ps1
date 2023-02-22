@@ -14,6 +14,8 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
             if(Test-Path env:$EnvironmentParam) {
                 Write-Host "Setting $EnvironmentParam from environment variable."
                 Set-Variable -Scope Script -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
+                Set-Variable -Scope Global -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
+                Set-Variable -Scope Local -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
             }
         }
         function Load-LocalSelenium {

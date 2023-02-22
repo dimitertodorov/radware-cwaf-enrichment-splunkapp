@@ -14,6 +14,8 @@ Describe "SplunkApp" {
             if(Test-Path env:$EnvironmentParam) {
                 Write-Host "Setting $EnvironmentParam from environment variable."
                 Set-Variable -Scope Script -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
+                Set-Variable -Scope Global -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
+                Set-Variable -Scope Local -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
             }
         }
         Write-Host "Testing SplunkApp on $SplunkAPIHost"
