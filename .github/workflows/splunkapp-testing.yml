@@ -1,0 +1,36 @@
+name: Radware CWAF Enrichment SplunkApp Testing
+run-name: ${{ github.ref_name }} Test SplunkApp Rest Endpoints
+on:
+  push:
+    branches:
+      - seleniumtesting
+jobs:
+  Test-SplunkApp-Pester:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup PowerShell module cache
+        id: cacher
+        uses: actions/cache@v3
+        with:
+          path: "~/.local/share/powershell/Modules"
+          key: ${{ runner.os }}-InvokeBuild
+      - name: Install required PowerShell modules
+        if: steps.cacher.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module InvokeBuild -ErrorAction Stop
+      - name: Start Pester Tests against Dockerized Splunk
+        shell: pwsh
+        run: |
+          Invoke-Build -Task TestInDocker
+      - name: Test Result Processing
+        id: test_frontend
+        uses: zyborg/pester-tests-report@v1
+        with:
+          test_results_path: output/TestResults.xml
+          report_name: splunkapp_pester_tests
+          report_title: SplunkApp Pester Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}

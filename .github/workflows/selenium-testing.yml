@@ -5,12 +5,51 @@ on:
     branches:
       - seleniumtesting
 jobs:
-  buildbase:
-    uses: './.github/workflows/base-build-install.yml'
   Test-SplunkApp-Frontend:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
+      - uses: nanasess/setup-chromedriver@v1
+      - name: Setup PowerShell module cache
+        id: cacher
+        uses: actions/cache@v3
+        with:
+          path: "~/.local/share/powershell/Modules"
+          key: ${{ runner.os }}-InvokeBuild
+      - name: Install required PowerShell modules
+        if: steps.cacher.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module InvokeBuild -ErrorAction Stop
+      - name: Cache node modules
+        id: cache-nodemodules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # caching node_modules
+          path: |
+            frontend/node_modules
+            frontend/packages/radware-enrichment-components/node_modules
+            frontend/packages/radware-enrichment-ui/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Packages
+        shell: pwsh
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: |
+          cd frontend
+          yarn install
+      - name: Build Frontend
+        shell: pwsh
+        run: |
+          cd frontend
+          yarn build
       - name: Start Docker Container
         shell: pwsh
         run: |
@@ -20,4 +59,6 @@ jobs:
         uses: zyborg/pester-tests-report@v1
         with:
           test_results_path: output/TestResults_Frontend.xml
+          report_name: frontend_tests
+          report_title: SplunkApp Frontend Tests
           github_token: ${{ secrets.GITHUB_TOKEN }}
