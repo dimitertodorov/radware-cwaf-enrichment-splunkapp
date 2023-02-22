@@ -5,7 +5,7 @@ Param (
     $SplunkClearPassword = "newPassword",
     $MaxWaitSeconds = 60,
     $SplunkNormalUser = "raduser1",
-    $RunningHeadless = $false
+    $RunningHeadless = $true
 )
 Describe "SplunkApp radware_cwaf_enrichment Frontend" {
     BeforeAll {
