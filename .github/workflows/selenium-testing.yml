@@ -48,4 +48,21 @@ jobs:
         run: |
           cd frontend
           yarn build
-          
+      - name: Start Docker Container
+        shell: pwsh
+        run: |
+          Invoke-Build -Task StartDockerContainer,CheckSplunkDockerHealth,CheckSplunkHealth
+      - name: test frontend
+        id: test_frontend
+        uses: zyborg/pester-tests-report@v1
+        with:
+          include_paths: test/frontend
+          report_name: splunkapp_selenium_tests
+          report_title: SplunkApp Selenium Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: print test results
+        shell: pwsh
+        run: |
+          Write-Host 'Total Tests Executed...:  ${{ steps.test_frontend.outputs.total_count }}'
+          Write-Host 'Total Tests PASSED.....:  ${{ steps.test_frontend.outputs.passed_count }}'
+          Write-Host 'Total Tests FAILED.....:  ${{ steps.test_frontend.outputs.failed_count }}'
