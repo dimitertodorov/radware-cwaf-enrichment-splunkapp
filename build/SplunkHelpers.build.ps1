@@ -272,7 +272,6 @@ function Get-SplunkAppInspectReport {
                 Method  = "GET"
                 Uri     = "https://appinspect.splunk.com/v1/app/report/$($RequestId)"
                 OutFile = $ReportFile
-                Proxy   = "http://localhost:8080"
             }
             Write-Host "AppInspect Validation Status - $($ValidationStatus.status). Downloading report to $($ReportFile)"
             Invoke-WebRequest @ReportRequest
@@ -295,20 +294,22 @@ function Get-SplunkbaseAuthToken {
         [Parameter(Mandatory = $true)]
         [PSCredential]$Credentials
     )
+
     if (Test-path "$($BuildRoot)/splunkbase_connection.json") {
         $tokenCache = Get-Content "$($BuildRoot)/splunkbase_connection.json" | ConvertFrom-Json
         $tokenExpiry = Get-Date -Date $tokenCache.expiry
-        if ($tokenExpiry -gt (Get-Date)) {
-            Write-Host "Token in Cache"
+        if ($tokenExpiry -gt (Get-Date -AsUTC)) {
+            Write-Host "Token in Cache is still valid - $($tokenExpiry) > $(Get-Date -AsUTC)"
             return $tokenCache
         }
         else {
-            Write-Host "Token Expired - Refreshing $($tokenExpiry) < $(Get-Date)"
+            Write-Host "Token Expired - Refreshing $($tokenExpiry) < $(Get-Date -AsUTC)"
         }
     }
-    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $spCreds.GetNetworkCredential().UserName, $spCreds.GetNetworkCredential().Password)))
+
+    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $Credentials.GetNetworkCredential().UserName, $Credentials.GetNetworkCredential().Password)))
     $RequestHeaders = @{Authorization = ("Basic {0}" -f $base64AuthInfo) }
-    $TokenResponse = Invoke-RestMethod -Uri $uri -Headers $RequestHeaders
+    $TokenResponse = Invoke-RestMethod -Uri "https://api.splunk.com/2.0/rest/login/splunk" -Headers $RequestHeaders
     $TokenPayload = Parse-JWTtoken -Token $TokenResponse.data.token
     $TokenExpiry = (([System.DateTimeOffset]::FromUnixTimeSeconds($TokenPayload.exp)).DateTime).ToString()
     $TokenCache = @{
