@@ -19,14 +19,19 @@ Describe "SplunkApp" {
             }
         }
         Write-Host "Testing SplunkApp on $SplunkAPIHost"
-        if (Test-Path $SplunkLocalPath)
-        {
-            Remove-Item "$SplunkLocalPath/*.conf" -Force
+        try{
+            if (Test-Path $SplunkLocalPath)
+            {
+                Remove-Item "$SplunkLocalPath/*.conf" -Force
+            }
+            if (Test-Path "splunkapp/metadata/local.meta")
+            {
+                Remove-Item "splunkapp/metadata/local.meta" -Force
+            }
+        }catch{
+            Write-Host "Warning cleaning up test files: $($_.Exception.Message)"
         }
-        if (Test-Path "splunkapp/metadata/local.meta")
-        {
-            Remove-Item "splunkapp/metadata/local.meta" -Force
-        }
+        
 
         [securestring]$SecureSplunkPassword = ConvertTo-SecureString $SplunkClearPassword -AsPlainText -Force
         [pscredential]$Script:SplunkCreds = New-Object System.Management.Automation.PSCredential ($SplunkUser, $SecureSplunkPassword)
