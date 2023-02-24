@@ -6,7 +6,7 @@ on:
       - seleniumtesting
 jobs:
   start-full-test:
-    uses: .github/workflows/base-testing.yml
+    uses: ./.github/workflows/base-testing.yml
     with:
       run_frontend: true
     secrets: inherit
