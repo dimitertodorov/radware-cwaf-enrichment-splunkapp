@@ -40,12 +40,11 @@ jobs:
         env:
           cache-name: cache-node-modules
         with:
-          # caching node_modules
           path: |
             frontend/node_modules
             frontend/packages/radware-enrichment-components/node_modules
             frontend/packages/radware-enrichment-ui/node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('frontend/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
