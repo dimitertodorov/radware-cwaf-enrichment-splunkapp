@@ -64,7 +64,7 @@ jobs:
       - name: copy files to temp directory
         shell: pwsh
         run: |
-          Copy-Item splunkapp -Destination "${{ runner.temp }}"
+          Copy-Item splunkapp -Destination "${{ runner.temp }}/" -Recurse
       - name: start docker container and wait
         shell: pwsh
         env:
