@@ -13,7 +13,6 @@ jobs:
       DockerSplunkAPIPort: 19089
       DockerSplunkWebPort: 19000
       DockerSplunkHostname: splunkweb-testing-container1
-      DockerSplunkAppSrc: "${{ runner.temp }}/splunkapp"
       SplunkAPIHost: https://localhost:19089
       SplunkURL: http://localhost:19000
       SplunkUser: admin
@@ -68,6 +67,8 @@ jobs:
           Copy-Item splunkapp -Destination "${{ runner.temp }}"
       - name: start docker container and wait
         shell: pwsh
+        env:
+          DockerSplunkAppSrc: "${{ runner.temp }}/splunkapp"
         run: |
           Invoke-Build -Task StartDockerContainer, CheckSplunkDockerHealth, CheckSplunkHealth
       - name: Start Frontend Tests
