@@ -106,7 +106,9 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
         function Start-WebDriver
         {
             $Options = New-Object OpenQA.Selenium.Chrome.ChromeOptions
-            #$Options.AddArgument("--headless")
+            if($RunningHeadless){
+                $Options.AddArgument("--headless")
+            }
             $Options.AddArgument("--log-level=3")
             $Options.AddArguments("--disable-gpu", "--window-size=1920,1200", "--ignore-certificate-errors", "--disable-extensions", "--no-sandbox", "--disable-dev-shm-usage") | Out-Null
             if ($WebDriver)
@@ -151,11 +153,11 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
         }
     }
 
-    # AfterAll {
-    #     if($WebDriver) {
-    #         $WebDriver.Dispose()
-    #     }
-    # }
+    AfterAll {
+        if($WebDriver) {
+            $WebDriver.Dispose()
+        }
+    }
 
     if (-not$DemoTest)
     {
