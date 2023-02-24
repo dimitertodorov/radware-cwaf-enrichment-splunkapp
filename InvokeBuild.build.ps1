@@ -70,6 +70,10 @@ task PesterFrontend SetupVariables, {
         SplunkURL     = $Script:SplunkURL
         DemoTest      = $TestFrontendInDemo
     }
+    if($TestFrontendInDemo){
+        assert(Invoke-WebRequest "http://127.0.0.1:9088") "Frontend is not running."
+        $Script:SplunkURL = "http://127.0.0.1:9088"
+    }
     $FrontendPesterConfig = New-PesterConfiguration
     $FrontendPesterConfig.TestResult.OutputFormat = "NUnitXml"
     $FrontendPesterConfig.TestResult.OutputPath = "$( $BuildRoot )/output/TestResults_Frontend.xml"
