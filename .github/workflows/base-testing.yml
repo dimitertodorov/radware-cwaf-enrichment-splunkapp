@@ -36,6 +36,7 @@ jobs:
       - name: Cache node modules
         id: cache-nodemodules
         uses: actions/cache@v3
+        if: inputs.run_frontend == true
         env:
           cache-name: cache-node-modules
         with:
@@ -49,7 +50,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: Install Packages
+      - name: yarn install node packages
         shell: pwsh
         if: steps.cache-nodemodules.outputs.cache-hit != 'true' && inputs.run_frontend == true
         run: |
