@@ -15,7 +15,8 @@ DockerSplunkAPIPort={3}
 DockerSplunkHECPort={4}
 SplunkClearPassword={5}
 SplunkAppName={6}
-"@ -f $DockerSplunkImage, $DockerSplunkHostname, $DockerSplunkWebPort, $DockerSplunkAPIPort, $DockerSplunkHECPort, $SplunkClearPassword, $SplunkAppName
+DockerSplunkAppSrc={7}
+"@ -f $DockerSplunkImage, $DockerSplunkHostname, $DockerSplunkWebPort, $DockerSplunkAPIPort, $DockerSplunkHECPort, $SplunkClearPassword, $SplunkAppName, $DockerSplunkAppSrc
     $envFileContents | Out-File -FilePath "$( $BuildRoot )/build/.env" -Encoding ASCII
     
 }

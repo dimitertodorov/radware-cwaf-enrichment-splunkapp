@@ -13,6 +13,7 @@ jobs:
       DockerSplunkAPIPort: 19089
       DockerSplunkWebPort: 19000
       DockerSplunkHostname: splunkweb-testing-container1
+      DockerSplunkAppSrc: "${{ runner.temp }}/splunkapp"
       SplunkAPIHost: https://localhost:19089
       SplunkURL: http://localhost:19000
       SplunkUser: admin
@@ -61,6 +62,10 @@ jobs:
         run: |
           cd frontend
           yarn build
+      - name: copy files to temp directory
+        shell: pwsh
+        run: |
+          Copy-Item splunkapp -Destination "${{ runner.temp }}"
       - name: start docker container and wait
         shell: pwsh
         run: |

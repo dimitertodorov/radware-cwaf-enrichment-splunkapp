@@ -14,6 +14,7 @@ param(
     $DockerSplunkWebPort = "9000",
     $DockerSplunkAPIPort = "19089",
     $DockerSplunkHECPort = "19088",
+    $DockerSplunkAppSrc = "../splunkapp",
     ## Splunkbase Variables
     $MaxWaitAppInspect = 300,
     [switch]$TestFrontendInDemo = $false
@@ -38,7 +39,7 @@ task SetupVariables {
     $Script:PesterConfig.Output.Verbosity = "Detailed"
 
     $EnvironmentParamArray = @( "SplunkAPIHost", "SplunkURL", "SplunkUser", "SplunkClearPassword", "SplunkNormalUser")
-    $EnvironmentParamArray += @( "DockerSplunkImage", "DockerSplunkHostname", "DockerSplunkWebPort", "DockerSplunkAPIPort", "DockerSplunkHECPort", "SplunkContainerName")
+    $EnvironmentParamArray += @( "DockerSplunkImage", "DockerSplunkHostname", "DockerSplunkWebPort", "DockerSplunkAPIPort", "DockerSplunkHECPort", "SplunkContainerName", "DockerSplunkAppSrc")
     foreach ($EnvironmentParam in $EnvironmentParamArray) {
         if (Test-Path env:$EnvironmentParam) {
             Write-Host "Setting $EnvironmentParam from environment variable."
