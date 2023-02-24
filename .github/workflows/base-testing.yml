@@ -21,19 +21,20 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: nanasess/setup-chromedriver@v1
-      - name: Setup PowerShell module cache
+      - name: get cached PowerShell modules
         id: cacher
         uses: actions/cache@v3
         with:
           path: "~/.local/share/powershell/Modules"
-          key: ${{ runner.os }}-InvokeBuild
-      - name: Install required PowerShell modules
+          key: ${{ runner.os }}-PSModules-InvokeBuildGithubActions
+      - name: install powershell modules
         if: steps.cacher.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
           Install-Module InvokeBuild -ErrorAction Stop
-      - name: Cache node modules
+          Install-Module GitHubActions -ErrorAction Stop
+      - name: get cached node modules
         id: cache-nodemodules
         uses: actions/cache@v3
         if: inputs.run_frontend == true
