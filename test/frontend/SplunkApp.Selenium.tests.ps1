@@ -5,13 +5,14 @@ Param (
     $SplunkClearPassword = "newPassword",
     $MaxWaitSeconds = 60,
     $SplunkNormalUser = "raduser1",
-    $RunningHeadless = $false
+    $RunningHeadless = $false,
+    $DemoTest = $true
 )
 Describe "SplunkApp radware_cwaf_enrichment Frontend" {
     BeforeAll {
         $EnvironmentParamArray = @( "SplunkAPIHost", "SplunkURL", "SplunkUser", "SplunkClearPassword", "SplunkNormalUser", "RunningHeadless")
-        foreach($EnvironmentParam in $EnvironmentParamArray) {
-            if(Test-Path env:$EnvironmentParam) {
+        foreach ($EnvironmentParam in $EnvironmentParamArray) {
+            if (Test-Path env:$EnvironmentParam) {
                 Write-Host "Setting $EnvironmentParam from environment variable."
                 Set-Variable -Scope Script -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
                 Set-Variable -Scope Global -Name $EnvironmentParam -Value (Get-Item env:$EnvironmentParam).Value
@@ -20,9 +21,10 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
         }
         function Load-LocalSelenium {
             $Script:SeleniumPath = Resolve-Path -Path "$PSScriptRoot\..\..\build\selenium"
-            [System.Reflection.Assembly]::LoadFrom("$($seleniumPath)\WebDriver.dll")
+            Write-Host "$($Script:SeleniumPath)\WebDriver.dll"
+            [System.Reflection.Assembly]::LoadFrom("$($Script:SeleniumPath)\WebDriver.dll")
         }
-        
+
         function Check-ElementExists {
             Param(
                 [parameter(Position = 0, Mandatory = $true)]$XPathOrId
@@ -39,43 +41,49 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
                 }
             }
         }
-        
+
         function Wait-Element {
             Param(
                 [parameter(Position = 0, Mandatory = $true)]$XPathOrId,
-                [parameter(Position = 1, Mandatory = $false)]$Timeout = 30
+                [parameter(Position = 1, Mandatory = $false)]$Timeout = 30,
+                [Switch]$Click = $false
             )
             $StopLoop = $false
             $RetryEnd = $Timeout * 1000 / 250
             do {
-                if (Check-ElementExists -XPathOrId $XPathOrId) {
+                $element = (Check-ElementExists -XPathOrId $XPathOrId)
+                if ($element) {
                     $StopLoop = $true
+                    if ($Click) {
+                        $element.Click()
+                        return
+                    }
+                    return $element
                 }
                 if ($RetryCount -gt $RetryEnd) {
                     Write-Error "Waiting for $XPathOrId FAILED"
                     $StopLoop = $true
-        
+
                 }
                 Start-Sleep -Milliseconds 250
             }While ($StopLoop -eq $false )
         }
-        
+
         function Set-InputContent {
             Param(
-                [parameter(Position = 0)]$Id,
+                [parameter(Position = 0)]$XPathOrId,
                 [parameter(Position = 1)]$Text
             )
-            $el = $WebDriver.FindElement([OpenQA.Selenium.By]::Id($Id))
+            $el = Check-ElementExists -XPathOrId $XPathOrId
             $el.Clear()
             $el.SendKeys($Text)
         }
 
         function Start-WebDriver {
             $Options = New-Object OpenQA.Selenium.Chrome.ChromeOptions
-            
-            $Options.AddArgument("--headless")
+            #$Options.AddArgument("--headless")
             $Options.AddArgument("--log-level=3")
-            $Options.AddArguments("--disable-gpu", "--window-size=1920,1200","--ignore-certificate-errors","--disable-extensions","--no-sandbox","--disable-dev-shm-usage") | Out-Null
+            $Options.AddArguments("--disable-gpu", "--window-size=1920,1200", "--ignore-certificate-errors", "--disable-extensions", "--no-sandbox", "--disable-dev-shm-usage") | Out-Null
             if ($WebDriver) {
                 if (-not $WebDriver.CurrentWindowHandle) {
                     $global:WebDriver = new-object OpenQA.Selenium.Chrome.ChromeDriver($Options)
@@ -99,8 +107,8 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
             Write-Host "Logging in to Splunk @ $SplunkURL"
             $WebDriver.Navigate().GoToUrl($SplunkURL)
             if (Check-ElementExists -XPathOrId "//input[@id='username']") {
-                Set-InputContent -Id "username" -Text $SplunkUser
-                Set-InputContent -Id "password" -Text $SplunkClearPassword
+                Set-InputContent -XPathOrId "username" -Text $SplunkUser
+                Set-InputContent -XPathOrId "password" -Text $SplunkClearPassword
                 $WebDriver.FindElement([OpenQA.Selenium.By]::XPath("//input[@type='submit' and @value='Sign In']")).Click()
             }
             elseif ($WebDriver.Url -like "*/en-US/app/launcher/home") {
@@ -109,26 +117,28 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
         }
     }
 
-    AfterAll {
-        if($WebDriver) {
-            $WebDriver.Dispose()
-        }
-    }
+    # AfterAll {
+    #     if($WebDriver) {
+    #         $WebDriver.Dispose()
+    #     }
+    # }
 
-    Describe 'basic Splunk acessibility' {
-        BeforeAll {
-            Load-LocalSelenium
-            Start-WebDriver
-        }
+    if (-not $DemoTest) {
+        Describe 'basic Splunk acessibility' {
+            BeforeAll {
+                Load-LocalSelenium
+                Start-WebDriver
+            }
 
-        It 'logs into Splunk successfully and the app is visible' {
-            Login-SeleniumSplunk
-            Wait-Element -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']"
-            (Check-ElementExists -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']") | Should -Not -BeNullOrEmpty
-        }
+            It 'logs into Splunk successfully and the app is visible' -Tag 'RunsInSplunk' {
+                Login-SeleniumSplunk
+                Wait-Element -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']"
+                (Check-ElementExists -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']") | Should -Not -BeNullOrEmpty
+            }
 
-        AfterAll {
-            Close-WebDriver
+            AfterAll {
+                Close-WebDriver
+            }
         }
     }
 
@@ -136,12 +146,19 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
         BeforeAll {
             Load-LocalSelenium
             Start-WebDriver
-            Login-SeleniumSplunk
-            Wait-Element -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']"
+            if (-not $DemoTest) {
+                Login-SeleniumSplunk
+                Wait-Element -XPathOrId "//a[@aria-label='Radware CWAF Data Import for Splunk']"
+            }
         }
 
         It 'successfully loads the start page' {
-            $WebDriver.Navigate().GoToUrl("$SplunkURL/en-US/app/radware_cwaf_enrichment/start")
+            if (-Not $DemoTest) {
+                $WebDriver.Navigate().GoToUrl("$SplunkURL/en-US/app/radware_cwaf_enrichment/start")
+            }
+            else {
+                $WebDriver.Navigate().GoToUrl("$SplunkURL")
+            }
             Wait-Element -XPathOrId "//button[@title='Setup']"
             $SetupButton = Check-ElementExists -XPathOrId "//button[@title='Setup']"
             $SetupButton | Should -Not -BeNullOrEmpty
@@ -171,8 +188,35 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
             $TabButton.Click()
         }
 
-        AfterAll {
-            Close-WebDriver
+        Describe 'settings page' {
+            It 'successfully changes the log level' {
+                Wait-Element -XPathOrId "//button[@title='Setup']" -Click
+                $SelectButton = Wait-Element -XPathOrId "//button[@data-test-id='log-level-select']"
+                $SelectButton.Click()
+                $SelectOption = Wait-Element -XPathOrId "//button[@data-test-id='log-level-select-option-ERROR']"
+                $SelectOption.Click()
+                $SaveButton = Wait-Element -XPathOrId "//button[@data-test-id='save-settings-button']"
+                $SaveButton.Click()
+            }
+
+            It 'adds a new credential' {
+                Wait-Element -XPathOrId "//button[@title='Setup']" -Click
+                Wait-Element -XPathOrId "//button[@data-test-id='add-new-credential-button']" -Click
+                Wait-Element -XPathOrId "//div[@data-test-id='credential-credential_name']/span/input"
+                Set-InputContent -XPathOrId "//div[@data-test-id='credential-credential_name']/span/input" `
+                    -Text "Test Credential Name"
+                Set-InputContent -XPathOrId "//div[@data-test-id='credential-username']/span/input" `
+                    -Text "mock_seleniumtest"
+                Set-InputContent -XPathOrId "//div[@data-test-id='credential-password']/span/input" `
+                    -Text "password"
+                Set-InputContent -XPathOrId "//div[@data-test-id='credential-password_confirm']/span/input" `
+                    -Text "password"
+                Wait-Element -XPathOrId "//button[@data-test-id='credential-save-button']" -Click
+            }
         }
+
+        # AfterAll {
+        #     Close-WebDriver
+        # }
     }
 }

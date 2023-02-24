@@ -128,7 +128,8 @@ const CredentialComponent = ({credentials, handleCredentialsUpdate}) => {
                     <Button label="Add New Credential"
                             appearance="secondary" icon={<Plus screenReaderText={null}/>}
                             disabled={editingCredential !== ""}
-                            onClick={addCredential}/>
+                            onClick={addCredential}
+                            data-test-id={'add-new-credential-button'}/>
                 </Card.Body>
             </Card>
             {(editingCredential !== "") ? <CredentialForm cred={getCred()}
@@ -224,9 +225,9 @@ const CredentialForm = (props) => {
     const getSaveIcon = () => {
         if (loading) {
             return <WaitSpinner size="small"/>
-        } else {
-            return <Save screenReaderText={null}/>
         }
+        return <Save screenReaderText={null}/>
+
     }
 
     return (<Card className={'setup-card'}>
@@ -234,20 +235,24 @@ const CredentialForm = (props) => {
         <Card.Body>
             <ControlGroup label="Credential Name" error={fieldErrors('credential_name')}>
                 <Text value={thisCred.credential_name}
-                      onChange={handleFieldChange('credential_name')}/>
+                      onChange={handleFieldChange('credential_name')}
+                      data-test-id={'credential-credential_name'}/>
             </ControlGroup>
             <ControlGroup label="Username" error={fieldErrors('username')}>
                 <Text value={thisCred.username}
-                      onChange={handleFieldChange('username')}/>
+                      onChange={handleFieldChange('username')}
+                      data-test-id={'credential-username'}/>
             </ControlGroup>
             <ControlGroup label="Password" error={fieldErrors('password')}>
                 <Text type="password" canClear value={thisCred.password} onChange={handleFieldChange('password')}
-                      onClick={onClickPassword}/>
+                      onClick={onClickPassword}
+                      data-test-id={'credential-password'}/>
             </ControlGroup>
             {(thisCred.password_set !== "1") ?
                 <ControlGroup label="Confirm Password" error={fieldErrors('password_confirm')}>
                     <Text type="password" value={thisCred.password_confirm}
-                          onChange={handleFieldChange('password_confirm')}/>
+                          onChange={handleFieldChange('password_confirm')}
+                          data-test-id={'credential-password_confirm'}/>
                 </ControlGroup> : null}
             <ControlGroup label="Tenant ID"
                           help="Tenant ID will be fetched on save if left blank."
@@ -260,6 +265,7 @@ const CredentialForm = (props) => {
                         icon={getSaveIcon()}
                         appearance="primary"
                         onClick={submit}
+                        data-test-id={'credential-save-button'}
                 />
                 <Button label="Cancel" appearance="pill" onClick={cancel}/></ControlGroup>
             <pre>{JSON.stringify(thisCred, null, 2)}</pre>

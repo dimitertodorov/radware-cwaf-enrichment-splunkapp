@@ -15,7 +15,8 @@ param(
     $DockerSplunkAPIPort = "19089",
     $DockerSplunkHECPort = "19088",
     ## Splunkbase Variables
-    $MaxWaitAppInspect = 300
+    $MaxWaitAppInspect = 300,
+    [switch]$TestFrontendInDemo = $false
 )
 
 task SetupVariables {
@@ -66,6 +67,7 @@ task PesterFrontend SetupVariables, {
     $TestParams = @{
         SplunkAPIHost = $Script:SplunkAPIHost
         SplunkURL     = $Script:SplunkURL
+        DemoTest      = $TestFrontendInDemo
     }
     $FrontendPesterConfig = New-PesterConfiguration
     $FrontendPesterConfig.TestResult.OutputFormat = "NUnitXml"
@@ -73,7 +75,7 @@ task PesterFrontend SetupVariables, {
     $FrontendPesterConfig.TestResult.Enabled = $True
     $FrontendPesterConfig.Output.Verbosity = "Detailed"
     $FrontendPesterConfig.Run.Container = (New-PesterContainer -Path "$( $BuildRoot )/test/frontend/*.tests.ps1" -Data $TestParams)
-    Invoke-Pester -Configuration $FrontendPesterConfig
+    Invoke-Pester -Configuration $FrontendPesterConfig 
 }
 
 task EnsureRegularUser SetupVariables, {

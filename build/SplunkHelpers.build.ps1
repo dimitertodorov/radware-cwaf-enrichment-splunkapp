@@ -118,7 +118,7 @@ task CheckSplunkHealth SetupVariables, {
         Credential           = $SplunkCreds
     }
     $result = Invoke-RestMethod @RequestSplat
-    assert($result.entry[0].content.health_info -eq "green")
+    assert($result.entry[0].content.health_info -eq "green") "Splunk is not healthy on $SplunkAPIHost - Host: $( $result.entry[0].content.host ) Health: $( $result.entry[0].content.health_info )"
     Write-Host "Splunk is healthy on $SplunkAPIHost - Host: $( $result.entry[0].content.host ) Version: $( $result.entry[0].content.version )"
 }
 

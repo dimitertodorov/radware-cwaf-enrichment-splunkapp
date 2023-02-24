@@ -46,7 +46,7 @@ const DemoDebugComponent = () => {
                                          initialPanelId={'manage'}/>
         }
         const restService = new AppConfigService(new SplunkRestService({runningInSplunk: false, jwtToken}))
-        return <MainAppViewComponent configService={restService} initialPanelId={'logs'}/>
+        return <MainAppViewComponent configService={restService} initialPanelId={'setup'}/>
     }
 
     return (<div>
