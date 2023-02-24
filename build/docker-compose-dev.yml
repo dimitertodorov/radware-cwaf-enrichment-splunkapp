@@ -8,7 +8,7 @@ services:
       - "${DockerSplunkHECPort}:8088"
       - "${DockerSplunkAPIPort}:8089"
     volumes:
-      - ${SplunkAppSrc}:/opt/splunk/etc/apps/${SplunkAppName}
+      - ${DockerSplunkAppSrc}:/opt/splunk/etc/apps/${SplunkAppName}
     environment:
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_ENABLE_LISTEN=9997
