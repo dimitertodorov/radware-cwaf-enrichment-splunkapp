@@ -1,5 +1,4 @@
-import styled from 'styled-components'
-
+import styled from 'styled-components';
 
 const StyledCard = styled.div`
     position: relative;
@@ -11,6 +10,6 @@ const StyledCard = styled.div`
     .credential-spinner-container {
         text-align: center;
     }
-`
+`;
 
-export {StyledCard}
+export { StyledCard };

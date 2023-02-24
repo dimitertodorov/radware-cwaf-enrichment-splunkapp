@@ -5,40 +5,9 @@ on:
     branches:
       - seleniumtesting
 jobs:
-  Test-SplunkApp-Pester:
+  start-full-test:
+    uses: .github/workflows/base-testing.yml
+    with:
+      run_frontend: true
+    secrets: inherit
     permissions: write-all
-    runs-on: ubuntu-latest
-    env:
-      DockerSplunkAPIPort: 19089
-      DockerSplunkWebPort: 19000
-      DockerSplunkHostname: splunkweb-testing-container1
-      SplunkAPIHost: https://localhost:19089
-      SplunkURL: http://localhost:19000
-      SplunkUser: admin
-      SplunkClearPassword: newPassword
-    steps:
-      - uses: actions/checkout@v1
-      - name: Setup PowerShell module cache
-        id: cacher
-        uses: actions/cache@v3
-        with:
-          path: "~/.local/share/powershell/Modules"
-          key: ${{ runner.os }}-InvokeBuild
-      - name: Install required PowerShell modules
-        if: steps.cacher.outputs.cache-hit != 'true'
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module InvokeBuild -ErrorAction Stop
-      - name: Start Pester Tests against Dockerized Splunk
-        shell: pwsh
-        run: |
-          Invoke-Build -Task StartDockerContainer, CheckSplunkDockerHealth, CheckSplunkHealth
-      - name: Test Result Processing
-        id: test_backend
-        uses: zyborg/pester-tests-report@v1
-        with:
-          include_paths: test/SplunkApp.Base.tests.ps1
-          report_name: splunkapp_pester_tests
-          report_title: SplunkApp Pester Tests
-          github_token: ${{ secrets.GITHUB_TOKEN }}

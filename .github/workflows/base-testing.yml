@@ -1,11 +1,11 @@
-name: Radware CWAF Enrichment SplunkApp Frontend Testing
-run-name: ${{ github.ref_name }} Test SplunkApp Frontend
 on:
-  push:
-    branches:
-      - seleniumtesting
+  workflow_call:
+    inputs:
+      run_frontend:
+        required: true
+        type: boolean
 jobs:
-  Test-SplunkApp-Frontend:
+  Test-SplunkApp:
     permissions: write-all
     runs-on: ubuntu-latest
     env:
@@ -50,24 +50,43 @@ jobs:
             ${{ runner.os }}-
       - name: Install Packages
         shell: pwsh
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true' && inputs.run_frontend == true
         run: |
           cd frontend
           yarn install
-      - name: Build Frontend
+      - name: build frontend
+        if: inputs.run_frontend == true
         shell: pwsh
         run: |
           cd frontend
           yarn build
-      - name: Start Docker Container and Wait
+      - name: start docker container and wait
         shell: pwsh
         run: |
-          Invoke-Build -Task TestFrontendInDocker
-      - name: test frontend
+          Invoke-Build -Task StartDockerContainer, CheckSplunkDockerHealth, CheckSplunkHealth
+      - name: Start Frontend Tests
+        shell: pwsh
+        if: inputs.run_frontend == true
+        run: |
+          Invoke-Build -Task SetupDockerVariables,PesterFrontend
+      - name: start settings endpoint tests
+        shell: pwsh
+        run: |
+          Invoke-Build -Task SetupDockerVariables,Pester
+      - name: report frontend test-results
         id: test_frontend
         uses: zyborg/pester-tests-report@v1
+        if: inputs.run_frontend == true
         with:
           test_results_path: output/TestResults_Frontend.xml
           report_name: frontend_tests
           report_title: SplunkApp Frontend Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: report settings endpoint test-results
+        id: test_settings
+        uses: zyborg/pester-tests-report@v1
+        with:
+          test_results_path: output/TestResults.xml
+          report_name: settings_tests
+          report_title: SplunkApp Settings Endpoint Tests
           github_token: ${{ secrets.GITHUB_TOKEN }}

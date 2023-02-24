@@ -1,18 +1,17 @@
-import ColumnLayout from "@splunk/react-ui/ColumnLayout"
-import {StyledCard} from "./ComponentStyles"
-import Card from "@splunk/react-ui/Card"
-import DL from "@splunk/react-ui/DefinitionList"
-import React from "react"
+import ColumnLayout from '@splunk/react-ui/ColumnLayout';
+import { StyledCard } from './ComponentStyles';
+import Card from '@splunk/react-ui/Card';
+import DL from '@splunk/react-ui/DefinitionList';
+import React from 'react';
 
 const AboutPanel = () => {
-
     return (
         <ColumnLayout>
             <ColumnLayout.Row>
                 <ColumnLayout.Column span={6}>
                     <StyledCard>
                         <Card className={'setup-card'}>
-                            <Card.Header title={'App Properties'}/>
+                            <Card.Header title={'App Properties'} />
                             <Card.Body>
                                 <DL>
                                     <DL.Term>Author</DL.Term>
@@ -32,7 +31,7 @@ const AboutPanel = () => {
                 </ColumnLayout.Column>
             </ColumnLayout.Row>
         </ColumnLayout>
-    )
-}
+    );
+};
 
-export default AboutPanel
+export default AboutPanel;
