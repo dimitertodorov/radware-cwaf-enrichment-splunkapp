@@ -1,7 +1,7 @@
-import { convertCredentials, parseConfig } from './AppConfigHelper';
+import {convertCredentials, parseConfig} from './AppConfigHelper';
 import * as config from '@splunk/splunk-utils/config';
-import { defaultFetchInit, handleResponse } from '@splunk/splunk-utils/fetch';
-import { getStickyValue } from '../utils/ReactHelpers';
+import {defaultFetchInit, handleResponse} from '@splunk/splunk-utils/fetch';
+import {getStickyValue} from '../utils/react_utils';
 
 // This service handles all interaction with the Splunk REST API
 // It is used by the AppConfigService to get and update the app's configuration, and perform any other REST API calls.

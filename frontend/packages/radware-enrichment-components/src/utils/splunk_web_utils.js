@@ -1,4 +1,4 @@
-import { getStickyValue } from './ReactHelpers';
+import { getStickyValue } from './react_utils';
 
 const staticConfig = {
     CSRFToken: '4588212691124109229',
@@ -106,4 +106,4 @@ const getSearchUrl = (search) => {
     return `${splunkWebUrl.value}/en-US/${relativeSearchUrl}`;
 };
 
-export { getStaticConfig, getSearchUrl };
+export {getStaticConfig, getSearchUrl};

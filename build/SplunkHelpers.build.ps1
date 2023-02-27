@@ -256,7 +256,7 @@ function Get-SplunkAppInspectReport {
     }
     $ValidationInProgress = $true
     $WaitCounter = 0
-    $ReportFile = "$($BuildRoot)/output/appinspect_report_$($AppVersion).json"
+    $ReportFile = "$($BuildRoot)/output/appinspect_report_$($AppVersion).html"
     while ($ValidationInProgress -and ($WaitCounter -lt ($MaxWaitAppInspect / 5))) {
         $WaitCounter++
         $ValidationRequest = @{
@@ -271,6 +271,8 @@ function Get-SplunkAppInspectReport {
             $ReportRequest = @{
                 Headers = $RequestHeaders
                 Method  = "GET"
+                Proxy = "http://127.0.0.1:8080"
+                ContentType = "text/html"
                 Uri     = "https://appinspect.splunk.com/v1/app/report/$($RequestId)"
                 OutFile = $ReportFile
             }

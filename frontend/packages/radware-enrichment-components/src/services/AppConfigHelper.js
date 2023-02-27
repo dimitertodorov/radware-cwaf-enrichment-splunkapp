@@ -53,14 +53,14 @@ const convertCredentials = (credentials) => {
 //     }
 // }
 const parseConfig = (configResponse) => {
-    const { content } = configResponse.entry[0];
+    const {content} = configResponse.entry[0];
     const outputCredentials = {};
     const outputSettings = {};
     const credentialRegex = /(?<prefix>.*)\.(?<idx>[0-9]+|new)\.(?<suffix>.*)/;
     Object.keys(content).forEach((configKey, _) => {
         const match = credentialRegex.exec(configKey);
         if (match) {
-            const { _, idx, suffix } = match.groups;
+            const {_, idx, suffix} = match.groups;
             if (!outputCredentials[idx]) {
                 outputCredentials[idx] = {};
             }
@@ -74,7 +74,7 @@ const parseConfig = (configResponse) => {
             outputSettings[configKey] = content[configKey];
         }
     });
-    return { credentials: outputCredentials, settings: outputSettings };
+    return {credentials: outputCredentials, settings: outputSettings};
 };
 
 const parseRawProperties = (rawProperties) => {
@@ -82,7 +82,7 @@ const parseRawProperties = (rawProperties) => {
     rawProperties.entry.forEach((entry, _) => {
         configContent[entry.name] = entry.content;
     });
-    return parseConfig({ entry: [{ content: configContent }] });
+    return parseConfig({entry: [{content: configContent}]});
 };
 
-export { parseConfig, parseRawProperties, convertCredentials };
+export {parseConfig, parseRawProperties, convertCredentials};

@@ -92,7 +92,10 @@ const CredentialComponent = ({ credentials, handleCredentialsUpdate }) => {
                                 data-test-id={`delete-${creds[cred].name}-button`}
                             />
                         </div>
-                        <Modal open={deletingCredential === cred} data-test-id="delete-credential-modal">
+                        <Modal
+                            open={deletingCredential === cred}
+                            data-test-id="delete-credential-modal"
+                        >
                             <Modal.Header title="Delete Credential" />
                             <Modal.Body>
                                 <p>Are you sure you want to delete this credential:</p>

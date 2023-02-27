@@ -71,7 +71,7 @@ task PesterFrontend SetupVariables, {
         DemoTest      = $TestFrontendInDemo
     }
     if($TestFrontendInDemo){
-        assert(Invoke-WebRequest "http://127.0.0.1:9088") "Frontend is not running."
+        assert(Invoke-WebRequest "http://127.0.0.1:9088") "Demo frontend is not running."
         $Script:SplunkURL = "http://127.0.0.1:9088"
     }
     $FrontendPesterConfig = New-PesterConfiguration
