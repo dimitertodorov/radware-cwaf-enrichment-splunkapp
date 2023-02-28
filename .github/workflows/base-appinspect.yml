@@ -41,7 +41,7 @@ jobs:
         if: success() || failure()
         with:
           name: splunk-appinspect-report
-          path: {{ steps.appinspect.outputs.appinspect_report_path }}
+          path: ${{ steps.appinspect.outputs.report_file }}
       - name: store tgz in artifacts
         uses: actions/upload-artifact@v3
         with:
