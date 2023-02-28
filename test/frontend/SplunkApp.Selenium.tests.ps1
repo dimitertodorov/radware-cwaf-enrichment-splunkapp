@@ -190,6 +190,10 @@ Describe "SplunkApp radware_cwaf_enrichment Frontend" {
             }
         }
 
+        It 'this will fail' {
+            $True | Should -Be $False
+        }
+
         It 'successfully loads the start page' {
             if (-Not$DemoTest)
             {
