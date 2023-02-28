@@ -183,7 +183,13 @@ task BuildSplunkAppTgz GetVersion, {
     exec { tar --exclude=".*" -czf "$($BuildRoot)/$PackageFileName"  $SplunkAppName }
     Set-Location $BuildRoot
     $PackagePath = (Resolve-Path -Path "$($BuildRoot)/$PackageFileName").Path
-    Write-Output "##vso[task.setvariable variable=SplunkAppPackagePath]$PackagePath"
+    if($env:GITHUB_OUTPUT){
+        Write-Output "package_filename=$($PackageFileName)" >> $env:GITHUB_OUTPUT
+        Write-Output "package_path=$($PackagePath)" >> $env:GITHUB_OUTPUT
+        Write-Host "Running in GitHub - Saving Build Outputs"
+    }
+    Write-Output "##vso[task.setvariable variable=package_filename]$PackageFileName"
+    Write-Output "##vso[task.setvariable variable=package_path]$PackagePath"
 }
 
 . (Resolve-Path "$( $BuildRoot )/build/SplunkHelpers.build.ps1")

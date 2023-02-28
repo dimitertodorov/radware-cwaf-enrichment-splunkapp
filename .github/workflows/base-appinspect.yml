@@ -29,6 +29,7 @@ jobs:
           Install-Module InvokeBuild -ErrorAction Stop
           Install-Module GitHubActions -ErrorAction Stop
       - name: build splunk app tgz
+        id: build-splunkapp-tgz
         shell: pwsh
         run: |
           Invoke-Build -Task BuildSplunkAppTgz
@@ -41,10 +42,10 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: splunk-appinspect-report
+          name: AppInspectReport.html
           path: ${{ steps.appinspect.outputs.report_file }}
       - name: store tgz in artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: splunkapp-tgz
-          path: radware_cwaf_enrichment-*.tar.gz
+          name: ${{ steps.build-splunkapp-tgz.outputs.package_filename }}
+          path: ${{ steps.build-splunkapp-tgz.outputs.package_path }}
