@@ -7,10 +7,12 @@ from __future__ import print_function
 import sys
 
 from future import standard_library
+
 from radware_cwaf_common_command import RadwareCommonCommand
-from splunklib.searchcommands import dispatch, Configuration
+from splunklib.searchcommands import Configuration, dispatch
 
 standard_library.install_aliases()
+
 
 @Configuration()
 class RadwareCWAFListRemoteCommand(RadwareCommonCommand):

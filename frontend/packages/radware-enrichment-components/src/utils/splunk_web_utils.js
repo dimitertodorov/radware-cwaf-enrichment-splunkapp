@@ -106,4 +106,4 @@ const getSearchUrl = (search) => {
     return `${splunkWebUrl.value}/en-US/${relativeSearchUrl}`;
 };
 
-export {getStaticConfig, getSearchUrl};
+export { getStaticConfig, getSearchUrl };

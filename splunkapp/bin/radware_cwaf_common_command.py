@@ -6,7 +6,6 @@
 # Dimiter Todorov - 2023
 
 import json
-import os
 import sys
 
 import splunk.rest as rest
