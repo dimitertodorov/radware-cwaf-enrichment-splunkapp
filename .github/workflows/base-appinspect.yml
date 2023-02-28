@@ -1,0 +1,49 @@
+name: Run AppInspect
+on:
+  workflow_call:
+    secrets:
+      SPLUNKBASE_USER:
+          required: true
+      SPLUNKBASE_PASSWORD:
+          required: true
+jobs:
+  AppInspect-SplunkApp:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    env:
+      SPLUNKBASE_USER: "${{ secrets.SPLUNKBASE_USER }}"
+      SPLUNKBASE_PASSWORD: "${{secrets.SPLUNKBASE_PASSWORD }}"
+    steps:
+      - name: get cached powershell modules
+        id: cacher
+        uses: actions/cache@v3
+        with:
+          path: "~/.local/share/powershell/Modules"
+          key: ${{ runner.os }}-PSModules-InvokeBuildGithubActions
+      - name: install powershell modules
+        if: steps.cacher.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module InvokeBuild -ErrorAction Stop
+          Install-Module GitHubActions -ErrorAction Stop
+      - name: build splunk app tgz
+        shell: pwsh
+        run: |
+          Invoke-Build -Task BuildSplunkAppTgz
+      - name: submit splunkapp appinspect
+        id: appinspect
+        shell: pwsh
+        run: |
+          Invoke-Build -Task SubmitAppInspect
+      - name: store appinspect report in artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: splunk-appinspect-report
+          path: {{ steps.appinspect.outputs.appinspect_report_path }}
+      - name: store tgz in artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: splunkapp-tgz
+          path: radware_cwaf_enrichment-*.tar.gz

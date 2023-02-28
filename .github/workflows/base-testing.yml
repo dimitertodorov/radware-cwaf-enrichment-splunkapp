@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: nanasess/setup-chromedriver@v1
-      - name: get cached PowerShell modules
+      - name: get cached powershell modules
         id: cacher
         uses: actions/cache@v3
         with:

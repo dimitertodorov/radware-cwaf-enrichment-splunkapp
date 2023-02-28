@@ -1,0 +1,11 @@
+name: Radware CWAF Enrichment AppInspect
+run-name: ${{ github.ref_name }} Running AppInspect on SplunkApp ${{ github.run_number }}
+on:
+  push:
+    branches:
+      - seleniumtesting
+jobs:
+  run-appinspect:
+    uses: ./.github/workflows/base-appinspect.yml
+    secrets: inherit
+    permissions: write-all
