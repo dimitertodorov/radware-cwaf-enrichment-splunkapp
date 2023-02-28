@@ -234,8 +234,8 @@ task SubmitAppInspect GetVersion, {
             }
             $ReportObject = (Get-Content $AppInspectStatus.report_json_file | ConvertFrom-Json -Depth 100)
             if($env:GITHUB_OUTPUT){
-                Write-Output "report_file=$($AppInspectStatus.report_file)" >> $env:GITHUB_ENV
-                Write-Output "report_json_file=$($AppInspectStatus.report_json_file)" >> $env:GITHUB_ENV
+                Write-Output "::set-output name=report_file::$($AppInspectStatus.report_file)"
+                Write-Output "::set-output name=report_json_file::$($AppInspectStatus.report_json_file)"
             }
             assert($AppInspectStatus.info.failure -eq 0) "AppInspect validation failed Number of Failures - $($AppInspectStatus.info.failure)"
 
