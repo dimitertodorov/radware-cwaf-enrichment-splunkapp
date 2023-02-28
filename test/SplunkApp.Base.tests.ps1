@@ -234,7 +234,7 @@ Describe "SplunkApp" {
                 "credential.create.password" = "fake_password"
                 "credential.create.action" = "create"
             }
-            $result = Invoke-RestMethod @BaseRequest
+            Invoke-RestMethod @BaseRequest | Out-Null
         }
 
         It 'should execute radwarecwaflistremote command ' {

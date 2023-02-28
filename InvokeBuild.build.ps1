@@ -37,6 +37,7 @@ task SetupVariables {
     $Script:PesterConfig.TestResult.OutputPath = "$( $BuildRoot )/output/TestResults.xml"
     $Script:PesterConfig.TestResult.Enabled = $True
     $Script:PesterConfig.Output.Verbosity = "Detailed"
+    $Script:PesterConfig.Run.PassThru = $True
 
     $EnvironmentParamArray = @( "SplunkAPIHost", "SplunkURL", "SplunkUser", "SplunkClearPassword", "SplunkNormalUser")
     $EnvironmentParamArray += @( "DockerSplunkImage", "DockerSplunkHostname", "DockerSplunkWebPort", "DockerSplunkAPIPort", "DockerSplunkHECPort", "SplunkContainerName", "DockerSplunkAppSrc")
@@ -61,7 +62,9 @@ task UpdateApp SetupVariables, {
 
 task Pester SetupVariables, {
     $PesterConfig.Run.Container = (New-PesterContainer -Path "$( $BuildRoot )/test/*.tests.ps1")
-    Invoke-Pester -Configuration $Script:PesterConfig
+    $TestResults = Invoke-Pester -Configuration $Script:PesterConfig
+    assert ($TestResults.FailedCount -eq 0) "Pester tests failed."
+    assert ($TestResults.FailedContainersCount -eq 0) "Pester container failed."
 }
 
 task PesterFrontend SetupVariables, {
@@ -80,7 +83,9 @@ task PesterFrontend SetupVariables, {
     $FrontendPesterConfig.TestResult.Enabled = $True
     $FrontendPesterConfig.Output.Verbosity = "Detailed"
     $FrontendPesterConfig.Run.Container = (New-PesterContainer -Path "$( $BuildRoot )/test/frontend/*.tests.ps1" -Data $TestParams)
-    Invoke-Pester -Configuration $FrontendPesterConfig 
+    $TestResults = Invoke-Pester -Configuration $FrontendPesterConfig
+    assert ($TestResults.FailedCount -eq 0) "Pester tests failed."
+    assert ($TestResults.FailedContainersCount -eq 0) "Pester container failed."
 }
 
 task EnsureRegularUser SetupVariables, {
