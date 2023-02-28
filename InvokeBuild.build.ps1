@@ -65,14 +65,14 @@ task Pester SetupVariables, {
 }
 
 task PesterFrontend SetupVariables, {
+    if($TestFrontendInDemo){
+        assert(Invoke-WebRequest "http://127.0.0.1:9088") "Demo frontend is not running."
+        $Script:SplunkURL = "http://127.0.0.1:9088"
+    }
     $TestParams = @{
         SplunkAPIHost = $Script:SplunkAPIHost
         SplunkURL     = $Script:SplunkURL
         DemoTest      = $TestFrontendInDemo
-    }
-    if($TestFrontendInDemo){
-        assert(Invoke-WebRequest "http://127.0.0.1:9088") "Demo frontend is not running."
-        $Script:SplunkURL = "http://127.0.0.1:9088"
     }
     $FrontendPesterConfig = New-PesterConfiguration
     $FrontendPesterConfig.TestResult.OutputFormat = "NUnitXml"
