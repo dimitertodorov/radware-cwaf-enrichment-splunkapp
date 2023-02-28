@@ -14,6 +14,7 @@ jobs:
       SPLUNKBASE_USER: "${{ secrets.SPLUNKBASE_USER }}"
       SPLUNKBASE_PASSWORD: "${{secrets.SPLUNKBASE_PASSWORD }}"
     steps:
+      - uses: actions/checkout@v1
       - name: get cached powershell modules
         id: cacher
         uses: actions/cache@v3
