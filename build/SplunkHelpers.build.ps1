@@ -225,18 +225,21 @@ task SubmitAppInspect GetVersion, {
         }
     }
     if ($AppInspectStatus) {
+        $ReportObject = (Get-Content $AppInspectStatus.report_json_file | ConvertFrom-Json -Depth 100)
+        if($env:GITHUB_OUTPUT){
+            Write-Output "report_file=$($AppInspectStatus.report_file)" >> $env:GITHUB_OUTPUT
+            Write-Output "report_json_file=$($AppInspectStatus.report_json_file)" >> $env:GITHUB_OUTPUT
+            Write-Host "Running in GitHub - Saving Outputs"
+        }
         if ($AppInspectStatus.info.failure -gt 0) {
             Write-Host "AppInspect validation failed - $($AppInspectStatus.info.failure) failures"
             Write-Host "AppInspect validation report - $($AppInspectStatus.report_file)"
+            $ReportObject = (Get-Content $AppInspectStatus.report_json_file | ConvertFrom-Json -Depth 100)
             $FailureMessages = ($ReportObject.reports.groups.checks.messages | Where-Object { $_.result -eq "failure" } )
             foreach ($FailureMessage in $FailureMessages) {
                 Write-Host "AppInspect Failure ### `n $($FailureMessage.message)"
             }
-            $ReportObject = (Get-Content $AppInspectStatus.report_json_file | ConvertFrom-Json -Depth 100)
-            Write-Host "::set-output name=report_file::$($AppInspectStatus.report_file)"
-            Write-Host "::set-output name=report_json_file::$($AppInspectStatus.report_json_file)"
             assert($AppInspectStatus.info.failure -eq 0) "AppInspect validation failed Number of Failures - $($AppInspectStatus.info.failure)"
-
         }
         else {
             Write-Host "AppInspect validation passed. `n $($AppInspectStatus.info | ConvertTo-JSON)"
