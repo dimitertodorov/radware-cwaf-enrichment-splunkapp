@@ -79,6 +79,7 @@ jobs:
           Invoke-Build -Task SetupDockerVariables,PesterFrontend
       - name: start settings endpoint tests
         shell: pwsh
+        if: success() || failure()
         run: |
           Invoke-Build -Task SetupDockerVariables,Pester
       - name: report frontend test-results
