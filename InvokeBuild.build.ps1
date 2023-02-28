@@ -83,6 +83,7 @@ task PesterFrontend SetupVariables, {
     $FrontendPesterConfig.TestResult.Enabled = $True
     $FrontendPesterConfig.Output.Verbosity = "Detailed"
     $FrontendPesterConfig.Run.Container = (New-PesterContainer -Path "$( $BuildRoot )/test/frontend/*.tests.ps1" -Data $TestParams)
+    $FrontendPesterConfig.Run.PassThru = $True
     $TestResults = Invoke-Pester -Configuration $FrontendPesterConfig
     assert ($TestResults.FailedCount -eq 0) "Pester tests failed."
     assert ($TestResults.FailedContainersCount -eq 0) "Pester container failed."
