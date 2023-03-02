@@ -121,7 +121,6 @@ class CredentialHandler:
                 if not cred['password'] or not cred['username']:
                     logger.debug("Password or Username not found for cred id %s " % idx)
                     continue
-                logger.debug(storage_passwords)
                 password = next(filter(lambda p: p.name == cred['password'], storage_passwords), None)
                 if password:
                     cred['password'] = password.clear_password
@@ -340,7 +339,6 @@ class CredentialHandler:
         passwords = service.storage_passwords.list()
         for p in passwords:
             if password_name in p.name:
-                logger.debug("deleting password %s" % p.name)
                 p.delete()
 
     @classmethod
