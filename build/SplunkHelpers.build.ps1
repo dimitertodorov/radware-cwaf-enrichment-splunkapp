@@ -225,10 +225,16 @@ task SubmitAppInspect GetVersion, {
         }
     }
     if ($AppInspectStatus) {
+        $ReportObject = (Get-Content $AppInspectStatus.report_json_file | ConvertFrom-Json -Depth 100)
+        if($env:GITHUB_OUTPUT){
+            Write-Output "report_file=$($AppInspectStatus.report_file)" >> $env:GITHUB_OUTPUT
+            Write-Output "report_json_file=$($AppInspectStatus.report_json_file)" >> $env:GITHUB_OUTPUT
+            Write-Host "Running in GitHub - Saving Outputs"
+        }
         if ($AppInspectStatus.info.failure -gt 0) {
             Write-Host "AppInspect validation failed - $($AppInspectStatus.info.failure) failures"
             Write-Host "AppInspect validation report - $($AppInspectStatus.report_file)"
-            $ReportObject = (Get-Content $AppInspectStatus.report_file | ConvertFrom-Json -Depth 100)
+            $ReportObject = (Get-Content $AppInspectStatus.report_json_file | ConvertFrom-Json -Depth 100)
             $FailureMessages = ($ReportObject.reports.groups.checks.messages | Where-Object { $_.result -eq "failure" } )
             foreach ($FailureMessage in $FailureMessages) {
                 Write-Host "AppInspect Failure ### `n $($FailureMessage.message)"
@@ -257,6 +263,7 @@ function Get-SplunkAppInspectReport {
     $ValidationInProgress = $true
     $WaitCounter = 0
     $ReportFile = "$($BuildRoot)/output/appinspect_report_$($AppVersion).html"
+    $ReportJsonFile = "$($BuildRoot)/output/appinspect_report_$($AppVersion).json"
     while ($ValidationInProgress -and ($WaitCounter -lt ($MaxWaitAppInspect / 5))) {
         $WaitCounter++
         $ValidationRequest = @{
@@ -271,14 +278,18 @@ function Get-SplunkAppInspectReport {
             $ReportRequest = @{
                 Headers = $RequestHeaders
                 Method  = "GET"
-                Proxy = "http://127.0.0.1:8080"
                 ContentType = "text/html"
                 Uri     = "https://appinspect.splunk.com/v1/app/report/$($RequestId)"
                 OutFile = $ReportFile
             }
             Write-Host "AppInspect Validation Status - $($ValidationStatus.status). Downloading report to $($ReportFile)"
             Invoke-WebRequest @ReportRequest
+            $ReportRequest.OutFile = $ReportJsonFile
+            $ReportRequest.ContentType = "application/json"
+            Invoke-WebRequest @ReportRequest
             $ValidationStatus | Add-Member -NotePropertyName "report_file" -NotePropertyValue $ReportFile
+            $ValidationStatus | Add-Member -NotePropertyName "report_json_file" -NotePropertyValue $ReportJsonFile
+
             return $ValidationStatus
         }
         else {
