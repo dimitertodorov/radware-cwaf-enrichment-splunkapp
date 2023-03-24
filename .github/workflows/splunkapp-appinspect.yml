@@ -3,7 +3,7 @@ run-name: ${{ github.ref_name }} Running AppInspect on SplunkApp ${{ github.run_
 on:
   push:
     branches:
-      - seleniumtesting
+      - master
 jobs:
   run-appinspect:
     uses: ./.github/workflows/base-appinspect.yml

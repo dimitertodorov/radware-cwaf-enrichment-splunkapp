@@ -3,7 +3,7 @@ run-name: ${{ github.ref_name }} Integration Testing SplunkApp ${{ github.run_nu
 on:
   push:
     branches:
-      - bbb
+      - master
 jobs:
   start-full-test:
     uses: ./.github/workflows/base-testing.yml
