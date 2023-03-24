@@ -1,0 +1,5 @@
+window.$DEVC = {
+  "adminToken": "eyJraWQiOiJzcGx1bmsuc2VjcmV0IiwiYWxnIjoiSFM1MTIiLCJ2ZXIiOiJ2MiIsInR0eXAiOiJzdGF0aWMifQ.eyJpc3MiOiJhZG1pbiBmcm9tIHNwbHVua2RldjAwMSIsInN1YiI6ImFkbWluIiwiYXVkIjoic3BsdW5rdGVzdCIsImlkcCI6IlNwbHVuayIsImp0aSI6IjZhMTk4YzlhNjEwNjg0OTZkYzE2NGUwMzEzZDg4MjFmMTVkMzAwOTliNzZlZGFlYzdlZWVkZTgzODA0MGIzMGYiLCJpYXQiOjE2Nzc2ODU5NjcsImV4cCI6MTY4Mjg2OTk2NywibmJyIjoxNjc3Njg1OTY3fQ.6ahC9VRngTeO-YAZELnzC8IPyzRCTfm4goUtTLDllASmNOBpZpVHVkcbgLjJSM7J6bijmomEg_ERUo6hSx9AzQ",
+  "splunkWebUrl": "http://localhost:9000",
+  "splunkdHostUrl": "https://localhost:19089"
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/splunkapp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/splunkapp/appserver" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/splunkapp/bin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/splunkapp/static" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/frontend" />
+      <excludeFolder url="file://$MODULE_DIR$/output" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

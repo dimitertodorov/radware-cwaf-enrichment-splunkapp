@@ -1,0 +1,13 @@
+name: Radware CWAF Enrichment SplunkApp Testing
+run-name: ${{ github.ref_name }} Integration Testing SplunkApp ${{ github.run_number }}
+on:
+  push:
+    branches:
+      - bbb
+jobs:
+  start-full-test:
+    uses: ./.github/workflows/base-testing.yml
+    with:
+      run_frontend: true
+    secrets: inherit
+    permissions: write-all

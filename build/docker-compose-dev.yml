@@ -1,0 +1,18 @@
+version: '2.4'
+services:
+  web:
+    hostname: '${DockerSplunkHostname}'
+    image: "${DockerSplunkImage}"
+    ports:
+      - "${DockerSplunkWebPort}:8000"
+      - "${DockerSplunkHECPort}:8088"
+      - "${DockerSplunkAPIPort}:8089"
+    volumes:
+      - ${DockerSplunkAppSrc}:/opt/splunk/etc/apps/${SplunkAppName}
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_ENABLE_LISTEN=9997
+      - SPLUNK_PASSWORD=${SplunkClearPassword}
+      - SPLUNK_ADD=tcp 1514
+      - SPLUNK_HOME=/opt/splunk
+      - SPLUNK_ETC=/opt/splunk/etc

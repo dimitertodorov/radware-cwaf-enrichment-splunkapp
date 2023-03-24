@@ -1,0 +1,102 @@
+name: Run SplunkApp Tests
+on:
+  workflow_call:
+    inputs:
+      run_frontend:
+        required: true
+        type: boolean
+jobs:
+  Test-SplunkApp:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    env:
+      DockerSplunkAPIPort: 19089
+      DockerSplunkWebPort: 19000
+      DockerSplunkHostname: splunkweb-testing-container1
+      SplunkAPIHost: https://localhost:19089
+      SplunkURL: http://localhost:19000
+      SplunkUser: admin
+      SplunkClearPassword: newPassword
+      RunningHeadless: true
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nanasess/setup-chromedriver@v1
+      - name: get cached powershell modules
+        id: cacher
+        uses: actions/cache@v3
+        with:
+          path: "~/.local/share/powershell/Modules"
+          key: ${{ runner.os }}-PSModules-InvokeBuildGithubActions
+      - name: install powershell modules
+        if: steps.cacher.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module InvokeBuild -ErrorAction Stop
+          Install-Module GitHubActions -ErrorAction Stop
+      - name: get cached node modules
+        id: cache-nodemodules
+        uses: actions/cache@v3
+        if: inputs.run_frontend == true
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: |
+            frontend/node_modules
+            frontend/packages/radware-enrichment-components/node_modules
+            frontend/packages/radware-enrichment-ui/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('frontend/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: yarn install node packages
+        shell: pwsh
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true' && inputs.run_frontend == true
+        run: |
+          cd frontend
+          yarn install
+      - name: build frontend
+        if: inputs.run_frontend == true
+        shell: pwsh
+        run: |
+          cd frontend
+          yarn build
+      - name: copy files to temp directory
+        shell: pwsh
+        run: |
+          Copy-Item splunkapp -Destination "${{ runner.temp }}/" -Recurse
+      - name: start docker container and wait
+        shell: pwsh
+        env:
+          DockerSplunkAppSrc: "${{ runner.temp }}/splunkapp"
+        run: |
+          Invoke-Build -Task StartDockerContainer, CheckSplunkDockerHealth, CheckSplunkHealth
+      - name: Start Frontend Tests
+        shell: pwsh
+        if: inputs.run_frontend == true
+        run: |
+          Invoke-Build -Task SetupDockerVariables,PesterFrontend
+      - name: start settings endpoint tests
+        shell: pwsh
+        if: success() || failure()
+        run: |
+          Invoke-Build -Task SetupDockerVariables,Pester
+      - name: report frontend test-results
+        id: test_frontend
+        uses: zyborg/pester-tests-report@v1
+        if: (inputs.run_frontend == true) && (success() || failure())
+        with:
+          test_results_path: output/TestResults_Frontend.xml
+          report_name: frontend_tests
+          report_title: SplunkApp Frontend Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: report settings endpoint test-results
+        id: test_settings
+        uses: zyborg/pester-tests-report@v1
+        if: success() || failure()
+        with:
+          test_results_path: output/TestResults.xml
+          report_name: settings_tests
+          report_title: SplunkApp Settings Endpoint Tests
+          github_token: ${{ secrets.GITHUB_TOKEN }}

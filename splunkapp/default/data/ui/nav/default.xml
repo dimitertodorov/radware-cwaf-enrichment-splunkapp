@@ -1,0 +1,5 @@
+<nav>
+  <view name="start" default="true"/>
+  <view name="radware_operations" />
+  <view name="local_store_operations" />
+</nav>
